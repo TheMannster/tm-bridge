@@ -14,11 +14,6 @@ This bridge script acts as a compatibility layer between TM Scripts and your cho
 
 ## Configuration
 
-Open `config.lua` and set your framework:
-```lua
-Config.Framework = "qbcore" -- options: "qbcore", "qbox"
-```
-
 ## Required by
 
 - TM Parking Meter Robbery
