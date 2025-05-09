@@ -7,7 +7,7 @@ end
 
 -- Function to get all players
 function GetPlayersQBox()
-    return exports.qbx_core:GetPlayers()
+    return GetPlayers() -- Use native FiveM function for player list
 end
 
 -- Function to add money to player

@@ -21,4 +21,8 @@ end
 -- Function to get player data
 function GetPlayerQBCore()
     return QBCore.Functions.GetPlayerData()
-end 
+end
+
+RegisterNetEvent('tm-bridge:NotifyQBCore', function(msg, type, notificationType)
+    NotifyQBCore(msg, type, notificationType)
+end) 
