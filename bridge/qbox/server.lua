@@ -1,3 +1,5 @@
+QBCore = exports['qb-core']:GetCoreObject()
+
 -- Function to get player by source
 function GetPlayerQBox(src)
     return exports.qbx_core:GetPlayer(src)
@@ -45,4 +47,9 @@ function HasRequiredItemQBox(item, src)
         end
     end
     return false
-end 
+end
+
+QBCore.Functions.CreateCallback('tm-bridge:HasRequiredItemQBox', function(source, cb, item)
+    local hasItem = HasRequiredItemQBox(item, source)
+    cb(hasItem)
+end) 
