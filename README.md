@@ -10,7 +10,8 @@ This bridge script acts as a compatibility layer between TM Scripts and your cho
 
 1. Place `tm-bridge` in your resources folder
 2. Add `ensure tm-bridge` to your server.cfg
-3. Configure your framework in the config file
+3. Make sure it is started before any resources that require it
+4. Configure your framework in the config file
 
 ## Configuration
 
