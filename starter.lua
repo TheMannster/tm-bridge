@@ -186,7 +186,8 @@ end)
 function LoadSharedFiles()
     local sharedFiles = {
         'shared/helpers.lua', -- Must be loaded first for Utils.Helpers
-        'shared/_loaders.lua',
+        'shared/loaders.lua', -- For Utils.Loaders asset management
+        'shared/_loaders.lua', -- For event handlers and initial load orchestration
         'shared/callback.lua',
         'shared/crafting.lua',
         'shared/drawText.lua',
