@@ -15,19 +15,20 @@ Items, Vehicles, Jobs, Gangs, Core = {}, nil, nil, nil, nil
 -- Correct QB Inventory Export
 -------------------------------------------------------------
 -- Correct ps-invetory to ls-inventory if somehow you still have that
-Exports.PSInv = isStarted("lj-inventory") and "lj-inventory" or Exports.PSInv
+Exports.PSInv = Utils.Helpers.isStarted("lj-inventory") and "lj-inventory" or Exports.PSInv
 
 -------------------------------------------------------------
 -- Framework Exports and Inventory Identifiers
 -------------------------------------------------------------
-OXLibExport, QBXExport, QBExport, ESXExport, OXCoreExport =
-    Exports.OXLibExport or "",
-    Exports.QBXExport or "",
-    Exports.QBExport or "",
-    Exports.ESXExport or "",
-    Exports.OXCoreExport or ""
+OXLibExport, QBXExport, QBExport, ESXExport, OXCoreExport, RSGExport =
+    Exports.OXLib or "",
+    Exports.QBXFrameWork or "",
+    Exports.QBFrameWork or "",
+    Exports.ESXFrameWork or "",
+    Exports.OXCoreFrameWork or "",
+    Exports.RSGFrameWork or ""
 
-OXInv, QBInv, PSInv, QSInv, CoreInv, CodeMInv, OrigenInv, TgiannInv =
+OXInv, QBInv, PSInv, QSInv, CoreInv, CodeMInv, OrigenInv, TgiannInv, ChezzaInv, RSGInv =
     Exports.OXInv or "",
     Exports.QBInv or "",
     Exports.PSInv or "",
@@ -35,10 +36,8 @@ OXInv, QBInv, PSInv, QSInv, CoreInv, CodeMInv, OrigenInv, TgiannInv =
     Exports.CoreInv or "",
     Exports.CodeMInv or "",
     Exports.OrigenInv or "",
-    Exports.TgiannInv or ""
-
-RSGExport, RSGInv =
-    Exports.RSGExport or "",
+    Exports.TgiannInv or "",
+    Exports.ChezzaInv or "",
     Exports.RSGInv or ""
 
 QBMenuExport = Exports.QBMenuExport or ""
@@ -49,14 +48,14 @@ QBTargetExport, OXTargetExport = Exports.QBTargetExport or "", Exports.OXTargetE
 -------------------------------------------------------------
 -- Print a list of all exports that are currently started (if debugMode is enabled).
 for _, v in pairs(Exports) do
-    if isStarted(v) then
+    if Utils.Helpers.isStarted(v) then
         debugPrint("^6Bridge^7: '^3"..v.."^7' export found")
     end
 end
 
 OxPlayer = nil
-if isStarted(OXCoreExport) then
-    if not isServer() then
+if Utils.Helpers.isStarted(OXCoreExport) then
+    if not Utils.Helpers.isServer() then
         OxPlayer = Ox.GetPlayer()
     end
 end
@@ -70,7 +69,7 @@ local itemResource, jobResource, vehResource = "", "", ""
 -- Loading Items
 -------------------------------------------------------------
 -- Load and compile shared items from the detected inventory system.
-if isStarted(OXInv) then
+if Utils.Helpers.isStarted(OXInv) then
     itemResource = OXInv
     Items = exports[OXInv]:Items()
     for k, v in pairs(Items) do
@@ -83,7 +82,7 @@ if isStarted(OXInv) then
         Items[k].thirst = v.client and v.client.thirst or nil
     end
 
-elseif isStarted(QBExport) then
+elseif Utils.Helpers.isStarted(QBExport) then
     itemResource = QBExport
     Core = Core or exports[QBExport]:GetCoreObject()
     Items = Core and Core.Shared.Items or nil
@@ -93,30 +92,30 @@ elseif isStarted(QBExport) then
             Wait(1000)
         end
     end)
-    if isStarted(QBExport) and not isStarted(QBXExport) then
+    if Utils.Helpers.isStarted(QBExport) and not Utils.Helpers.isStarted(QBXExport) then
         RegisterNetEvent('QBCore:Client:UpdateObject', function()
             Core = Core or exports[QBExport]:GetCoreObject()
             Items = Core and Core.Shared.Items or nil
         end)
     end
 
-elseif isStarted(ESXExport) then
+elseif Utils.Helpers.isStarted(ESXExport) then
     itemResource = ESXExport
     CreateThread(function()
-        if isServer() then
+        if Utils.Helpers.isServer() then
             Items = ESX.GetItems()
             while not createCallback do Wait(100) end
-            createCallback(getScript()..":getItems", function(source)
+            createCallback(Utils.Helpers.getScript()..":getItems", function(source)
                 return Items
             end)
         end
-        if not isServer() then
-            Items = triggerCallback(getScript()..":getItems")
+        if not Utils.Helpers.isServer() then
+            Items = triggerCallback(Utils.Helpers.getScript()..":getItems")
             debugPrint("^6Bridge^7: ^2Loading ^6"..countTable(Items).." ^3Items^2 from ^7"..itemResource)
         end
     end)
 
-elseif isStarted(RSGExport) then
+elseif Utils.Helpers.isStarted(RSGExport) then
     itemResource = RSGExport
     Core = Core or exports[RSGExport]:GetCoreObject()
     Items = Core and Core.Shared.Items or nil
@@ -139,37 +138,37 @@ end
 -- Loading Vehicles
 -------------------------------------------------------------
 -- Compile vehicles from the detected frameworks into a unified table.
-if isStarted(QBXExport) or isStarted(QBExport) then
+if Utils.Helpers.isStarted(QBXExport) or Utils.Helpers.isStarted(QBExport) then
     vehResource = QBExport
     Core = Core or exports[QBExport]:GetCoreObject()
     Vehicles = Core and Core.Shared.Vehicles
-    if isStarted(QBExport) and not isStarted(QBXExport) then
+    if Utils.Helpers.isStarted(QBExport) and not Utils.Helpers.isStarted(QBXExport) then
         RegisterNetEvent('QBCore:Client:UpdateObject', function()
             Core = Core or exports[QBExport]:GetCoreObject()
             Vehicles = Core and Core.Shared.Vehicles
         end)
     end
 
-elseif isStarted(OXCoreExport) then
+elseif Utils.Helpers.isStarted(OXCoreExport) then
     vehResource = OXCoreExport
     Vehicles = {}
     for k, v in pairs(Ox.GetVehicleData()) do
         Vehicles[k] = { model = k, hash = GetHashKey(k), price = v.price, name = v.name, brand = v.make }
     end
 
-elseif isStarted(ESXExport) then
+elseif Utils.Helpers.isStarted(ESXExport) then
     vehResource = ESXExport
     CreateThread(function()
-        if isServer() then
-            createCallback(getScript()..":getVehiclesPrices", function(source)
+        if Utils.Helpers.isServer() then
+            createCallback(Utils.Helpers.getScript()..":getVehiclesPrices", function(source)
                 return Vehicles
             end)
             while not MySQL do Wait(2000) print("^1Waiting for MySQL to exist") end
             Vehicles = MySQL.query.await('SELECT model, price, name FROM vehicles')
         end
-        if not isServer() then
+        if not Utils.Helpers.isServer() then
             --while not triggerCallback do print("waiting") Wait(100) end
-            local TempVehicles = triggerCallback(getScript()..":getVehiclesPrices")
+            local TempVehicles = triggerCallback(Utils.Helpers.getScript()..":getVehiclesPrices")
             for _, v in pairs(TempVehicles) do
                 Vehicles = Vehicles or {}
                 Vehicles[v.model] = {
@@ -183,7 +182,7 @@ elseif isStarted(ESXExport) then
         end
     end)
 
-elseif isStarted(RSGExport) then
+elseif Utils.Helpers.isStarted(RSGExport) then
     vehResource = RSGExport
     Core = Core or exports[RSGExport]:GetCoreObject()
     Vehicles = Core and Core.Shared.Vehicles
@@ -203,21 +202,21 @@ end
 -- Loading Jobs and Gangs
 -------------------------------------------------------------
 -- Compile jobs and gangs from the detected framework.
-if isStarted(QBXExport) then
+if Utils.Helpers.isStarted(QBXExport) then
     jobResource = QBXExport
     Core = Core or exports[QBExport]:GetCoreObject()
     Jobs, Gangs = exports[QBXExport]:GetJobs(), exports[QBXExport]:GetGangs()
 
-elseif isStarted(OXCoreExport) then
+elseif Utils.Helpers.isStarted(OXCoreExport) then
     jobResource = OXExport
     CreateThread(function()
-        if isServer() then
-            createCallback(getScript()..":getOxGroups", function(source)
+        if Utils.Helpers.isServer() then
+            createCallback(Utils.Helpers.getScript()..":getOxGroups", function(source)
                 Jobs = MySQL.query.await('SELECT * FROM `ox_groups`')
                 return Jobs
             end)
         else
-            local TempJobs = triggerCallback(getScript()..":getOxGroups")
+            local TempJobs = triggerCallback(Utils.Helpers.getScript()..":getOxGroups")
             Jobs = {}
             for k, v in pairs(TempJobs) do
                 local grades = {}
@@ -230,22 +229,22 @@ elseif isStarted(OXCoreExport) then
         end
     end)
 
-elseif isStarted(QBExport) then
+elseif Utils.Helpers.isStarted(QBExport) then
     jobResource = QBExport
     Core = Core or exports[QBExport]:GetCoreObject()
     Jobs, Gangs = Core.Shared.Jobs, Core.Shared.Gangs
-    if isStarted(QBExport) and not isStarted(QBXExport) then
+    if Utils.Helpers.isStarted(QBExport) and not Utils.Helpers.isStarted(QBXExport) then
         RegisterNetEvent('QBCore:Client:UpdateObject', function()
             Core = exports[QBExport]:GetCoreObject()
             Jobs, Gangs = Core.Shared.Jobs, Core.Shared.Gangs
         end)
     end
 
-elseif isStarted(ESXExport) then
+elseif Utils.Helpers.isStarted(ESXExport) then
     jobResource = ESXExport
-    if isServer() then
+    if Utils.Helpers.isServer() then
         -- If server, create callback to get jobs
-        createCallback(getScript()..":getESXJobs", function(source)
+        createCallback(Utils.Helpers.getScript()..":getESXJobs", function(source)
             return Jobs
         end)
         -- Populate jobs table with ESX.GetJobs()
@@ -286,12 +285,12 @@ elseif isStarted(ESXExport) then
         Gangs = Jobs
     end
     -- If client side, trigger callback to get jobs
-    if not isServer() then
-        Jobs = triggerCallback(getScript()..":getESXJobs")
+    if not Utils.Helpers.isServer() then
+        Jobs = triggerCallback(Utils.Helpers.getScript()..":getESXJobs")
         Gangs = Jobs
     end
 
-elseif isStarted(RSGExport) then
+elseif Utils.Helpers.isStarted(RSGExport) then
     jobResource = RSGExport
     Core = Core or exports[RSGExport]:GetCoreObject()
     Jobs, Gangs = Core.Shared.Jobs, Core.Shared.Gangs

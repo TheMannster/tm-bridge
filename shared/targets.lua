@@ -79,7 +79,7 @@ local circleTargets  = {}   -- For circular zone targets.
 function createEntityTarget(entity, opts, dist)
     targetEntities[#targetEntities + 1] = entity
 
-    if Config.System.DontUseTarget or (not isStarted(OXTargetExport) and not isStarted(QBTargetExport)) then
+    if Config.DontUseTarget or (not isStarted(OXTargetExport) and not isStarted(QBTargetExport)) then
         local entityCoords = GetEntityCoords(entity)
         debugPrint("^6Bridge^7: ^2Creating new ^3Entity^2 target with DrawText for entity ^7"..entity)
         local existingTarget = nil
@@ -194,7 +194,7 @@ function createBoxTarget(data, opts, dist)
     local zoneLength = data[4] -- Assuming data[4] is length/depth, not height. OX uses size.y for length.
     local zoneParams = data[5] -- e.g., { name, heading, debugPoly, minZ, maxZ, useZ }
 
-    if Config.System.DontUseTarget or (not isStarted(OXTargetExport) and not isStarted(QBTargetExport)) then
+    if Config.DontUseTarget or (not isStarted(OXTargetExport) and not isStarted(QBTargetExport)) then
         debugPrint("^6Bridge^7: ^2Creating new ^3Box^2 target with ^6DrawText ^2 for zone ^7"..zoneName)
         local existingTarget = nil
         for _, target in pairs(TextTargets) do
@@ -305,7 +305,7 @@ function createCircleTarget(data, opts, dist)
     local zoneRadius = data.radius or data[3]
     local zoneParams = data.options or data[4] or {} -- { debugPoly }
 
-    if Config.System.DontUseTarget then
+    if Config.DontUseTarget then
         debugPrint("^6Bridge^7: ^2Creating new ^3Circle ^2target with ^6DrawText ^2for zone ^7"..zoneName)
         local existingTarget = nil
         for _, target in pairs(TextTargets) do
@@ -396,7 +396,7 @@ end
 ---}, 2.0)
 ---```
 function createModelTarget(models, opts, dist)
-    if Config.System.DontUseTarget or (not isStarted(OXTargetExport) and not isStarted(QBTargetExport)) then
+    if Config.DontUseTarget or (not isStarted(OXTargetExport) and not isStarted(QBTargetExport)) then
         if type(models) ~= "table" then
             models = { models }
         end
@@ -462,7 +462,7 @@ function removeEntityTarget(entity)
     if isStarted(OXTargetExport) then
         exports[OXTargetExport]:removeLocalEntity(entity, nil)
     end
-    if Config.System.DontUseTarget or (not isStarted(OXTargetExport) and not isStarted(QBTargetExport)) then
+    if Config.DontUseTarget or (not isStarted(OXTargetExport) and not isStarted(QBTargetExport)) then
         TextTargets[entity] = nil
     end
 end
@@ -483,7 +483,7 @@ function removeZoneTarget(target)
     if isStarted(OXTargetExport) then
         exports[OXTargetExport]:removeZone(target, true)
     end
-    if Config.System.DontUseTarget or (not isStarted(OXTargetExport) and not isStarted(QBTargetExport)) then
+    if Config.DontUseTarget or (not isStarted(OXTargetExport) and not isStarted(QBTargetExport)) then
         TextTargets[target] = nil
     end
 end
@@ -503,7 +503,7 @@ function removeModelTarget(model)
     if isStarted(OXTargetExport) then
         exports[OXTargetExport]:removeModel(model, nil)
     end
-    if Config.System.DontUseTarget or (not isStarted(OXTargetExport) and not isStarted(QBTargetExport)) then
+    if Config.DontUseTarget or (not isStarted(OXTargetExport) and not isStarted(QBTargetExport)) then
         TextTargets[entity] = nil
     end
 end
@@ -511,71 +511,73 @@ end
 -- Fallback: DrawText3D Targets (Experimental)
 -------------------------------------------------------------
 
--- If no targeting system is detected and this is a client script, use DrawText3D for targets.
-if (Config.System.DontUseTarget or (not isStarted(OXTargetExport) and not isStarted(QBTargetExport))) and not isServer() then
-    CreateThread(function()
-        local wait = 1000
-        while true do
-            local pedCoords = GetEntityCoords(PlayerPedId())
-            local camCoords = GetGameplayCamCoord()
-            local camRot = GetGameplayCamRot(2)
-            local camForward = RotationToDirection(camRot)
-            local closestTarget, closestDist = nil, math.huge
-            local notificationShown = false
-            local targetEntity = nil
-            -- Update model targets and determine the closest target.
-            for _, target in pairs(TextTargets) do
-                if target.models then
-                    for _, model in ipairs(target.models) do
-                        local entity = GetClosestObjectOfType(pedCoords.x, pedCoords.y, pedCoords.z, target.dist, model, false, false, false)
-                        if entity and entity ~= 0 then
-                            target.coords = GetEntityCoords(entity)
-                            targetEntity = entity
-                            break
+AddEventHandler(Config.ResourceName .. ':systemsDetected', function()
+    -- If no targeting system is detected/chosen and this is a client script, use DrawText3D for targets.
+    if (Config.DontUseTarget or (Config.Target == 'none')) and not Utils.Helpers.isServer() then -- Assuming Utils.Helpers.isServer() is available
+        DebugPrint("Initializing DrawText3D fallback for targets.", "INFO")
+        CreateThread(function()
+            local wait = 1000
+            while true do
+                local pedCoords = GetEntityCoords(PlayerPedId())
+                local camCoords = GetGameplayCamCoord()
+                local camRot = GetGameplayCamRot(2)
+                local camForward = RotationToDirection(camRot)
+                local closestTarget, closestDist = nil, math.huge
+                local notificationShown = false
+                local targetEntity = nil
+                -- Update model targets and determine the closest target.
+                for _, target in pairs(TextTargets) do
+                    if target.models then
+                        for _, model in ipairs(target.models) do
+                            local entity = GetClosestObjectOfType(pedCoords.x, pedCoords.y, pedCoords.z, target.dist, model, false, false, false)
+                            if entity and entity ~= 0 then
+                                target.coords = GetEntityCoords(entity)
+                                targetEntity = entity
+                                break
+                            end
                         end
                     end
-                end
 
-                local dist = #(pedCoords - target.coords)
-                if dist <= target.dist then
-                    local vecToTarget = target.coords - camCoords
-                    local normVec = normalizeVector(vecToTarget)
-                    local dot = camForward.x * normVec.x + camForward.y * normVec.y + camForward.z * normVec.z
-                    if dot > 0.5 and dist < closestDist then
-                        closestDist = dist
-                        closestTarget = target
+                    if not target.coords then goto continue_target_loop end -- Skip if coords are still nil (e.g. model not found yet)
+
+                    local dist = #(pedCoords - target.coords)
+                    if dist <= target.dist then
+                        local vecToTarget = target.coords - camCoords
+                        local normVec = normalizeVector(vecToTarget)
+                        local dot = camForward.x * normVec.x + camForward.y * normVec.y + camForward.z * normVec.z
+                        if dot > 0.5 and dist < closestDist then
+                            closestDist = dist
+                            closestTarget = target
+                        end
                     end
+                    ::continue_target_loop::
                 end
-            end
 
-            -- Render targets, listen for key presses and display the help notification.
-            for key, target in pairs(TextTargets) do
-                if #(pedCoords - target.coords) <= target.dist then
-                    local isClosest = (target == closestTarget)
-                    for i, opt in ipairs(target.options) do
-                        if IsControlJustPressed(0, opt.key) and isClosest then
-                            if opt.onSelect then opt.onSelect(targetEntity) end
+                -- Render targets, listen for key presses and display the help notification.
+                if closestTarget then -- Only process the closest target
+                    for i, opt in ipairs(closestTarget.options) do
+                        if IsControlJustPressed(0, opt.key) then
+                            if opt.onSelect then opt.onSelect(targetEntity) end -- Make sure targetEntity is correct for this closestTarget
                             if opt.action then opt.action(targetEntity) end
                         end
                     end
-
                     notificationShown = true
-                    ShowFloatingHelpNotification(vec3(target.coords.x, target.coords.y, target.coords.z + 0.7), target.text)
+                    ShowFloatingHelpNotification(vec3(closestTarget.coords.x, closestTarget.coords.y, closestTarget.coords.z + 0.7), closestTarget.text)
                 end
-            end
 
-            -- If no notification was drawn this frame, clear help messages.
-            if notificationShown then
-                wait = 0
-            else
-                ClearAllHelpMessages()
-                wait = 1000
-            end
+                -- If no notification was drawn this frame, clear help messages.
+                if notificationShown then
+                    wait = 0
+                else
+                    ClearAllHelpMessages()
+                    wait = 1000
+                end
 
-            Wait(wait)
-        end
-    end)
-end
+                Wait(wait)
+            end
+        end)
+    end
+end)
 
 function ShowFloatingHelpNotification(coord, text, highlight)
     AddTextEntry("FloatingText", text)

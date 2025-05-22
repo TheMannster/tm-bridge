@@ -184,10 +184,10 @@ end
 --- @event `getScript()..ox:setVehicleProperties`
 --- @param netId number The network ID of the vehicle.
 --- @param props table The new vehicle properties.
-RegisterNetEvent(getScript()..":ox:setVehicleProperties", function(netId, props)
+RegisterNetEvent(Utils.Helpers.getScript() .. ":ox:setVehicleProperties", function(netId, props)
     local vehicle = NetworkGetEntityFromNetworkId(netId)
     local value = props
-    Entity(vehicle).state[getScript()..':setVehicleProperties'] = value
+    Entity(vehicle).state[Utils.Helpers.getScript()..':setVehicleProperties'] = value
 end)
 
 --- Handles state bag changes for updating vehicle properties.
@@ -196,7 +196,7 @@ end)
 --- @param bagName string The state bag's name.
 --- @param key string The key that changed.
 --- @param value table The new state value.
-AddStateBagChangeHandler(getScript()..':setVehicleProperties', '', function(bagName, _, value)
+AddStateBagChangeHandler(Utils.Helpers.getScript()..':setVehicleProperties', '', function(bagName, _, value)
     if not value or not GetEntityFromStateBagName then return end
     local entity = GetEntityFromStateBagName(bagName)
     local networked = not bagName:find('localEntity')
@@ -299,3 +299,7 @@ function getClosestVehicle(coords, src)
 
     return closestVehicle, closestDistance
 end
+
+RegisterNetEvent(Utils.Helpers.getScript() .. ":client:UpdateKeys", function(newKeys)
+    PlayerData.keys = newKeys
+end)

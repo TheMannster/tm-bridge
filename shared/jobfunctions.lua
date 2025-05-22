@@ -16,7 +16,9 @@
 -- This stops the script getting confused when one is false and one is true
 onDuty = false
 
-if not isServer() then
+local PlayerData = {}
+
+if not Utils.Helpers.isServer() then
     onPlayerLoaded(function()
         onDuty = getPlayer().onDuty
     end, true)

@@ -1,3 +1,9 @@
+local browserReady = false
+local browserQueue = {}
+
+-- Determine if running on client or server
+-- local isClient = not Utils.Helpers.isServer() -- This line can be removed if direct calls are preferred
+
 if gameName ~= "rdr3" then
     --[[
             DUI Module (Experimental)
@@ -8,7 +14,7 @@ if gameName ~= "rdr3" then
         ]]
 
         -- Create a runtime texture dictionary on the client if not running on the server.
-        scriptTxd = not isServer() and CreateRuntimeTxd(getScript()..'scriptTxd') or nil
+        scriptTxd = not Utils.Helpers.isServer() and CreateRuntimeTxd(Utils.Helpers.getScript()..'scriptTxd') or nil
         customDUIList = {}
 
         -------------------------------------------------------------
@@ -79,22 +85,22 @@ if gameName ~= "rdr3" then
                     end
                 end
                 if searchFound then
-                    TriggerServerEvent(getScript()..":Server:ChangeDUI", data)
+                    TriggerServerEvent(Utils.Helpers.getScript()..":Server:ChangeDUI", data)
                 end
             end
         end
 
         --- Client event handler to update DUI elements.
-        RegisterNetEvent(getScript()..":Client:ChangeDUI", function(data)
+        RegisterNetEvent(Utils.Helpers.getScript()..":Client:ChangeDUI", function(data)
             debugPrint("^6Bridge^7: ^2Receiving new DUI ^7- ^6"..data.url.."^7")
             if tostring(data.url) ~= "-" then
                 createDui(data.texn, tostring(data.url), data.size, scriptTxd)
-                AddReplaceTexture(tostring(data.texd), tostring(data.texn), getScript().."scriptTxd", tostring(data.texn))
+                AddReplaceTexture(tostring(data.texd), tostring(data.texn), Utils.Helpers.getScript().."scriptTxd", tostring(data.texn))
             end
         end)
 
         --- Client event handler to clear DUI elements.
-        RegisterNetEvent(getScript()..":Client:ClearDUI", function(data)
+        RegisterNetEvent(Utils.Helpers.getScript()..":Client:ClearDUI", function(data)
             if customDUIList[tostring(data.texn)] then
                 RemoveReplaceTexture(tostring(data.texd), tostring(data.texn))
                 if IsDuiAvailable(customDUIList[tostring(data.texn)]) then
@@ -109,7 +115,7 @@ if gameName ~= "rdr3" then
 
         --- Server event handler to change DUI settings.
         --- If no URL is provided, resets to the preset value.
-        RegisterNetEvent(getScript()..":Server:ChangeDUI", function(data)
+        RegisterNetEvent(Utils.Helpers.getScript()..":Server:ChangeDUI", function(data)
             if not data.url then
                 debugPrint("^6Bridge^7: ^2Preset: ^6"..tostring(data.preset).."^7")
                 data.url = data.preset
@@ -121,11 +127,11 @@ if gameName ~= "rdr3" then
                 end
             end
             debugPrint("^6Bridge^7: ^3DUI^2 Sending new DUI to all players^7 - ^6"..data.url.."^7")
-            TriggerClientEvent(getScript()..":Client:ChangeDUI", -1, data)
+            TriggerClientEvent(Utils.Helpers.getScript()..":Client:ChangeDUI", -1, data)
         end)
 
         --- Server event handler to clear DUI settings.
-        RegisterNetEvent(getScript()..":Server:ClearDUI", function(data)
+        RegisterNetEvent(Utils.Helpers.getScript()..":Server:ClearDUI", function(data)
             if data.url == "-" then
                 for k, v in pairs(Locations[data.name].duiList) do
                     if v.tex.texn == data.texn then
@@ -133,7 +139,7 @@ if gameName ~= "rdr3" then
                     end
                 end
             end
-            TriggerClientEvent(getScript()..":Client:ClearDUI", -1, data)
+            TriggerClientEvent(Utils.Helpers.getScript()..":Client:ClearDUI", -1, data)
         end)
 
         -------------------------------------------------------------
@@ -152,10 +158,19 @@ if gameName ~= "rdr3" then
         -- DUI List Callback (Server)
         -------------------------------------------------------------
 
-        if isServer() then
-            createCallback(getScript()..":Server:duiList", function(source)
+        if Utils.Helpers.isServer() then
+            createCallback(Utils.Helpers.getScript()..":Server:duiList", function(source)
                 return duiList
             end)
+            createCallback(Utils.Helpers.getScript()..":Server:customDuiList", function(source)
+                return customDUIList
+            end)
+        else
+            -- Wrap client-side callbacks in onPlayerLoaded to ensure framework is ready
+            onPlayerLoaded(function()
+                duiList = triggerCallback(Utils.Helpers.getScript()..":Server:duiList")
+                customDUIList = triggerCallback(Utils.Helpers.getScript()..":Server:customDuiList")
+            end, true) -- true to also run on resource start after login
         end
 
     end

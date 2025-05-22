@@ -38,8 +38,8 @@ function QBClient.Notify(msg, type, notificationType)
 end
 
 --- QBCore: Get player data
-function QBClient.GetPlayerData() -- Renamed for clarity from GetPlayer to GetPlayerData
-    if not QBCore then DebugPrint("QBCore not initialized in qbcore_client.GetPlayerData", "ERROR"); return nil end
+function QBClient.GetPlayer()
+    if not QBCore then QBCore = exports[Exports.QBFrameWork]:GetCoreObject() end
     return QBCore.Functions.GetPlayerData()
 end
 

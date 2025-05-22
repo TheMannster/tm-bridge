@@ -87,7 +87,7 @@ function craftingMenu(data)
     end
 
     -- Check if the player can carry the required items (server callback).
-    local canCarryTable = triggerCallback(getScript()..':server:canCarry', tempCarryTable)
+    local canCarryTable = triggerCallback(Utils.Helpers.getScript()..':server:canCarry', tempCarryTable)
     -- Process each recipe to create menu entries.
     for i = 1, #Recipes do
         if not Recipes[i]["amount"] then Recipes[i]["amount"] = 1 end
@@ -228,7 +228,7 @@ function multiCraft(data)
         end
     end
 
-    local carryMax = triggerCallback(getScript()..":server:getMaxCarryCraft", {
+    local carryMax = triggerCallback(Utils.Helpers.getScript()..":server:getMaxCarryCraft", {
         item = data.item,
         max = max
     })
@@ -383,20 +383,20 @@ function makeItem(data)
                             icon = data.item,
                             request = true,
                         }) then
-                            TriggerServerEvent(getScript()..":Crafting:GetItem", data.item, data.craft, data.stashName, metadata, currentToken)
+                            TriggerServerEvent(Utils.Helpers.getScript()..":Crafting:GetItem", data.item, data.craft, data.stashName, metadata, currentToken)
                             currentToken = nil -- clear client cached token
                             CreateThread(function()
                                 if data.craft["hasCrafted"] ~= nil then
                                     debugPrint("hasCrafted Found, marking '"..data.item.."' as crafted for player")
                                     data.craftable.craftedItems[data.item] = true
-                                    triggerCallback(getScript()..":server:SetMetadata", "craftedItems", data.craftable.craftedItems)
+                                    triggerCallback(Utils.Helpers.getScript()..":server:SetMetadata", "craftedItems", data.craftable.craftedItems)
                                 end
                                 Wait(100)
                                 if data.craft["exp"] ~= nil then
                                     craftingLevel += data.craft["exp"].give
                                     jsonPrint(data.craft["exp"])
                                     debugPrint("exp found, giving exp for '"..data.item.."'")
-                                    triggerCallback(getScript()..":server:SetMetadata", "craftingLevel", craftingLevel)
+                                    triggerCallback(Utils.Helpers.getScript()..":server:SetMetadata", "craftingLevel", craftingLevel)
                                 end
                             end)
                             if data.craftable.Recipes[1].oneUse == true then
@@ -442,10 +442,10 @@ end
 --- @param stashName string|table The stash name(s) to remove ingredients from.
 --- @param metadata table (optional) Metadata for the crafted item.
 --- @usage
-RegisterNetEvent(getScript()..":Crafting:GetItem", function(ItemMake, craftable, stashName, metadata, token)
+RegisterNetEvent(Utils.Helpers.getScript()..":Crafting:GetItem", function(ItemMake, craftable, stashName, metadata, token)
     local src = source
     debugPrint(GetInvokingResource())
-	if GetInvokingResource() and GetInvokingResource() ~= getScript() and GetInvokingResource() ~= "qb-core" then
+	if GetInvokingResource() and GetInvokingResource() ~= Utils.Helpers.getScript() and GetInvokingResource() ~= "qb-core" then
         debugPrint("^1Error^7: ^1Possible exploit^7, ^1vital function was called from an external resource^7")
         return
     end

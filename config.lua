@@ -1,7 +1,14 @@
 Config = {}
 Config.Framework = nil -- Will be 'qb-core', 'qbox', 'esx', 'ox_core', 'rsg-core' etc.
 Config.ResourceName = GetCurrentResourceName()
-Config.DebugMode = true -- Set to true for verbose debug prints, false for production
+Config.DebugMode = true -- Global toggle for general debug prints from DebugPrint(). Set to false for production to reduce console spam.
+
+-- Initialize System table for specific debug flags like EventDebug
+Config.System = {
+    EventDebug = false, -- Enables verbose logging of event registrations and triggers (RegisterNetEvent, TriggerEvent, etc.) in _eventDebug.lua. Useful for tracing event flow.
+    ClientDebugMode = false, -- Enables client-specific debug prints, primarily from Utils.Helpers.isStarted and client-side logic in callback.lua and playerfunctions.lua.
+    ServerDebugMode = true -- Enables server-specific debug prints, primarily from server-side logic in callback.lua and playerfunctions.lua.
+}
 
 -- Override Settings: Server owners can manually set these if auto-detection is problematic.
 -- These values are read by starter.lua. If a value is set here (not nil),

@@ -3,7 +3,7 @@ game 'gta5' -- Specify 'gta5' or 'rdr3' for RedM if RSG is primary
 
 author 'TheMannster'
 description 'Comprehensive Framework Bridge for TM Scripts with auto-detection and utilities, inspired by jim_bridge.'
-version '2.0.0' -- This should match version.txt
+version '2.1.0' -- This should match version.txt
 
 lua54 'yes'
 
@@ -11,21 +11,26 @@ lua54 'yes'
 -- games { 'gta5', 'rdr3' }
 
 files {
-    'config.lua', -- Ensure config.lua is loaded first
-    'shared/*.lua',
-    'shared/make/*.lua',
-    'shared/scaleforms/*.lua'
-    -- Add other specific shared files or patterns if needed, e.g., 'shared/scaleforms/*.lua'
+    -- These files are made available but not automatically loaded unless listed in shared/client/server scripts.
+    -- We are explicitly loading them below, so this section can remain commented or used for non-Lua files if any.
+    -- 'config.lua',
+    -- 'shared/*.lua',
+    -- 'shared/make/*.lua',
+    -- 'shared/scaleforms/*.lua'
 }
 
 shared_scripts {
-    -- This block can be kept empty if starter.lua handles loading of all files specified in the 'files' block.
-    -- Alternatively, specific scripts that MUST be loaded by fxmanifest globally before starter.lua runs can be listed here.
-    -- For now, assuming starter.lua in client_scripts and server_scripts handles shared file loading logic.
+    'config.lua', -- Load config.lua globally first. Defines Config table structure.
+    'shared/helpers.lua', -- Load helpers immediately after config. Defines Utils.Helpers.
+    'starter.lua', -- starter.lua now runs its detections in shared context BEFORE other shared scripts.
+    'shared/playerfunctions.lua', -- Ensure playerfunctions is loaded before other shared scripts that might use its functions.
+    'shared/*.lua',
+    'shared/make/*.lua',
+    'shared/scaleforms/*.lua'
 }
 
 client_scripts {
-    'starter.lua',
+    -- starter.lua is removed from here
     -- GTA5 Frameworks
     'frameworks/qbcore_client.lua',
     'frameworks/qbox_client.lua',
@@ -35,13 +40,13 @@ client_scripts {
     'frameworks/rsg_client.lua',
     -- Standalone Fallback
     'frameworks/standalone_client.lua',
-    
     'bridge_client.lua'
+    -- Add client_init.lua if we create it
 }
 
 server_scripts {
-    '_versioncheck.lua',
-    'starter.lua',
+    '_versioncheck.lua', -- This script seems to be server-only and does its own version check.
+    -- starter.lua is removed from here
     -- GTA5 Frameworks
     'frameworks/qbcore_server.lua',
     'frameworks/qbox_server.lua',
@@ -51,7 +56,6 @@ server_scripts {
     'frameworks/rsg_server.lua',
     -- Standalone Fallback
     'frameworks/standalone_server.lua',
-
     'bridge_server.lua'
 }
 
@@ -75,6 +79,6 @@ server_exports {
 }
 
 -- Optional: Define dependencies
--- dependencies {
--- 'ox_lib'
--- } 
+dependencies {
+    'ox_lib'
+} 

@@ -48,38 +48,34 @@ end
 function RegisterNetEvent(name, funct)
     if Config.System.EventDebug then
         if name:find("__ox_cb_") then
-            print("^6Bridge^7: ^2Registered ^3"..(isServer() and "Server" or "Client").." ^2Callback^7: ^6"..name:gsub("__ox_cb_", ""):gsub("%:", "^7:^4").."^7"..getDebugInfo(debug.getinfo(2, "nSl")))
+            print("^6Bridge^7: ^2Registered ^3"..(Utils.Helpers.isServer() and "Server" or "Client").." ^2Callback^7: ^6"..name:gsub("__ox_cb_", ""):gsub("%:", "^7:^4").."^7"..getDebugInfo(debug.getinfo(2, "nSl")))
         else
-            print("^6Bridge^7: ^2Registering ^3"..(isServer() and "Server" or "Client").." ^2Net event^7: ^6"..name:gsub("%:", "^7:^4").."^7"..getDebugInfo(debug.getinfo(2, "nSl")))
+            print("^6Bridge^7: ^2Registering ^3"..(Utils.Helpers.isServer() and "Server" or "Client").." ^2Net event^7: ^6"..name:gsub("%:", "^7:^4").."^7"..getDebugInfo(debug.getinfo(2, "nSl")))
         end
     end
     origRegisterNetEvent(name, funct)
 end
 
-function TriggerEvent(name, ...)
-    local data = {...}
-    if Config.System.EventDebug then
-        if name:find("__cfx_export") then
-            print("^6Bridge^7: "..GetPrintTime().." ^2Triggering ^3"..(isServer() and "Server" or "Client").." ^2Export^7: ^6"..name:gsub("__cfx_export_", ""):gsub("%:", "^7:^4").."^7"..getDebugInfo(debug.getinfo(2, "nSl")))
-        else
-            print("^6Bridge^7: "..GetPrintTime().." ^2Triggering ^3"..(isServer() and "Server" or "Client").." ^2Net event^7: ^6"..name:gsub("%:", "^7:^4").."^7"..getDebugInfo(debug.getinfo(2, "nSl")))
-        end
-        for i, value in ipairs(data) do
-            if value then
-                local valueStr = (type(value) == "table" and json.encode(value) or tostring(value))
-                print(string.format("^6Bridge^7: ^7[^3%d^7]: ^7(^5%s^7): %s".."^7", i, type(value), valueStr))
-            end
-        end    end
-    origTriggerEvent(name, ...)
+local _TriggerEvent = TriggerEvent
+TriggerEvent = function(name, ...)
+    if Config and Config.System and Config.System.EventDebug then
+        -- Temporarily removed getDebugInfo for troubleshooting the 'field System' error
+        print("^6Bridge^7: "..Utils.Helpers.GetPrintTime().." ^2Triggering ^3"..(Utils.Helpers.isServer() and "Server" or "Client").." ^2Net event^7: ^6"..name:gsub("%:", "^7:^4").."^7" -- ..getDebugInfo(debug.getinfo(2, "nSl")) 
+        )
+    end
+    -- Debugging: Print a simpler message if the above still errors
+    -- print("DEBUG: TriggerEvent wrapper called for: " .. tostring(name))
+
+    return _TriggerEvent(name, ...)
 end
 
 function TriggerServerEvent(name, ...) -- Client side, trigger a server event
     local data = {...}
-    if Config.System.EventDebug then
+    if Config and Config.System and Config.System.EventDebug then
         if name:find("__ox_cb") then
-            print("^6Bridge^7: "..GetPrintTime().." ^2Triggered ^3Server ^2Callback: ^6"..name:gsub("__ox_cb_", "").."^7"..getDebugInfo(debug.getinfo(2, "nSl")))
+            print("^6Bridge^7: "..Utils.Helpers.GetPrintTime().." ^2Triggered ^3Server ^2Callback: ^6"..name:gsub("__ox_cb_", "").."^7"..getDebugInfo(debug.getinfo(2, "nSl")))
         else
-            print("^6Bridge^7: "..GetPrintTime().." ^2Triggering ^3Server ^2Net event^7: ^6"..name:gsub("%:", "^7:^4").."^7"..getDebugInfo(debug.getinfo(2, "nSl")))
+            print("^6Bridge^7: "..Utils.Helpers.GetPrintTime().." ^2Triggering ^3Server ^2Net event^7: ^6"..name:gsub("%:", "^7:^4").."^7"..getDebugInfo(debug.getinfo(2, "nSl")))
         end
         for i, value in ipairs(data) do
             if value then
@@ -87,16 +83,17 @@ function TriggerServerEvent(name, ...) -- Client side, trigger a server event
                 print(string.format("^6Bridge^7: ^7[^3%d^7]: ^7(^5%s^7): %s".."^7", i, type(value), valueStr))
             end
         end    end
-    origTriggerServerEvent(name, ...)
+    local _TriggerServerEvent = TriggerServerEvent
+    _TriggerServerEvent(name, ...)
 end
 
 function TriggerClientEvent(name, ...) -- Server side, trigger a client event
     local data = {...}
-    if Config.System.EventDebug then
+    if Config and Config.System and Config.System.EventDebug then
         if name:find("__ox_cb") then
-            print("^6Bridge^7: "..GetPrintTime().." ^2Triggered ^3Client ^2Callback: ^6"..name:gsub("__ox_cb_", "").."^7"..getDebugInfo(debug.getinfo(2, "nSl")))
+            print("^6Bridge^7: "..Utils.Helpers.GetPrintTime().." ^2Triggered ^3Client ^2Callback: ^6"..name:gsub("__ox_cb_", "").."^7"..getDebugInfo(debug.getinfo(2, "nSl")))
         else
-            print("^6Bridge^7: "..GetPrintTime().." ^2Triggering ^3Client ^2Net event^7: ^6"..name:gsub("%:", "^7:^4").."^7"..getDebugInfo(debug.getinfo(2, "nSl")))
+            print("^6Bridge^7: "..Utils.Helpers.GetPrintTime().." ^2Triggering ^3Client ^2Net event^7: ^6"..name:gsub("%:", "^7:^4").."^7"..getDebugInfo(debug.getinfo(2, "nSl")))
         end
         for i, value in ipairs(data) do
             if value then
@@ -104,19 +101,20 @@ function TriggerClientEvent(name, ...) -- Server side, trigger a client event
                 print(string.format("^6Bridge^7: ^7[^3%d^7]: ^7(^5%s^7): %s".."^7", i, type(value), valueStr))
             end
         end    end
-    origTriggerClientEvent(name, ...)
+    local _TriggerClientEvent = TriggerClientEvent
+    _TriggerClientEvent(name, ...)
 end
 
 function RegisterCommand(command, funct, restrict)
-    if Config.System.EventDebug then
+    if Config and Config.System and Config.System.EventDebug then
         print("^6Bridge^7: ^2Registering ^2Command^7: /"..command.." ^7| ^4Funct^7: "..tostring(funct):gsub("function: ", "").." ^7| ^4Admin^7: "..(restict and "true" or "false")..getDebugInfo(debug.getinfo(2, "nSl")))
     end
     origRegisterCommand(command, funct, restrict)
 end
 
 function ExecuteCommand(comm) -- Client side, execute /command
-    if Config.System.EventDebug then
-        print("^6Bridge^7: "..GetPrintTime().." ^2Triggering ^3ExecuteCommand^7: /"..comm..getDebugInfo(debug.getinfo(2, "nSl")))
+    if Config and Config.System and Config.System.EventDebug then
+        print("^6Bridge^7: "..Utils.Helpers.GetPrintTime().." ^2Triggering ^3ExecuteCommand^7: /"..comm..getDebugInfo(debug.getinfo(2, "nSl")))
     end
     origExecuteCommand(comm)
 end
@@ -132,7 +130,7 @@ end
 function ipairs(tbl)
     local tbl = tbl
     if not tbl then
-        if Config.System.EventDebug then
+        if Config and Config.System and Config.System.EventDebug then
             print("^1Error^7: ^3iPairs^7() ^1nil ^2recieved^7, ^2setting to ^7{} ^2to prevent break^7"..getDebugInfo(debug.getinfo(2, "nSl")))
         end
         tbl = {}

@@ -128,7 +128,7 @@ end
 CountdownHandler = CountdownHandler:new()
 
 -- Register an event to start the countdown.
-RegisterNetEvent(getScript()..":startCountdown", function(number, hudColour)
+RegisterNetEvent(Utils.Helpers.getScript()..":startCountdown", function(number, hudColour)
     CountdownHandler:Start(number, hudColour)
 end)
 

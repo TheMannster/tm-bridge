@@ -1,4 +1,4 @@
-# TM Bridge - v2.0.0
+# TM Bridge - v2.1.0
 
 A comprehensive framework bridge for FiveM (and potentially RedM) servers, designed to allow scripts to seamlessly integrate with various core frameworks like QBCore, ESX, OX Core, and QBox. It also supports a **standalone mode** for framework-agnostic scripts.
 

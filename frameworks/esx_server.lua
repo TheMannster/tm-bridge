@@ -1,4 +1,4 @@
-if Config.Framework ~= Config.Frameworks[Exports.ESXFrameWork].name then return end
+if Config.Framework ~= Config.Frameworks['esx'].name then return end
 
 -- Initialize ESX object if it hasn't been by starter.lua yet (should be, but good practice)
 if not ESX then
@@ -11,8 +11,8 @@ if not ESX then
     end
 end
 
-FrameworkFuncs[Config.Frameworks[Exports.ESXFrameWork].name] = FrameworkFuncs[Config.Frameworks[Exports.ESXFrameWork].name] or {}
-FrameworkFuncs[Config.Frameworks[Exports.ESXFrameWork].name].Server = {}
+FrameworkFuncs['esx'] = FrameworkFuncs['esx'] or {}
+FrameworkFuncs['esx'].Server = {}
 
 local ESXServer = {}
 
@@ -198,5 +198,5 @@ function ESXServer.ShowNotificationToPlayer(playerId, message, type, duration)
     DebugPrint(string.format("ESXServer.ShowNotificationToPlayer: Sent to %s - Msg: %s, Type: %s", playerId, message, type))
 end
 
-FrameworkFuncs[Config.Frameworks[Exports.ESXFrameWork].name].Server = ESXServer
+FrameworkFuncs['esx'].Server = ESXServer
 DebugPrint("ESX Server Functions Initialized.") 

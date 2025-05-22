@@ -22,18 +22,18 @@ function capitalize(str)
     return (str:gsub("^%l", string.upper):gsub("%-%l", function(letter) return "-" .. string.upper(letter:sub(2)) end))
 end
 
-local scriptName = ("^2"..capitalize(getScript()):gsub("%-", "^7-^2"):gsub("%_", "^7_^2")) or ""
-local scriptVersion = ("^5"..GetResourceMetadata(getScript(), 'version', nil):gsub("%.", "^7.^5")) or ""
-local scriptDescription = ("^2"..GetResourceMetadata(getScript(), 'description', nil)) or ""
-local scriptAuthor = ("^2by ^4"..GetResourceMetadata(getScript(), 'author', nil):gsub("%and", "^7and^4")) or ""
+local scriptName = ("^2"..capitalize(Utils.Helpers.getScript()):gsub("%-", "^7-^2"):gsub("%_", "^7_^2")) or ""
+local scriptVersion = ("^5"..GetResourceMetadata(Utils.Helpers.getScript(), 'version', nil):gsub("%.", "^7.^5")) or ""
+local scriptDescription = ("^2"..GetResourceMetadata(Utils.Helpers.getScript(), 'description', nil)) or ""
+local scriptAuthor = ("^2by ^4"..GetResourceMetadata(Utils.Helpers.getScript(), 'author', nil):gsub("%and", "^7and^4")) or ""
 
 print(scriptName.." ^7v"..scriptVersion.."^7 - "..scriptDescription.." "..scriptAuthor.."^7")
 
 function CheckVersion()
-    if isServer() and GetResourceMetadata(getScript(), 'author', nil) == "TheMannster" then
+    if Utils.Helpers.isServer() and GetResourceMetadata(Utils.Helpers.getScript(), 'author', nil) == "TheMannster" then
         CreateThread(function()
             Wait(4000)
-            local script = getScript()
+            local script = Utils.Helpers.getScript()
             local currentVersionRaw = GetResourceMetadata(script, 'version')
 
             PerformHttpRequest(string.format('https://raw.githubusercontent.com/TheMannster/UpdateVersions/development/%s.txt', script), function(err, newestVersionRaw, headers)

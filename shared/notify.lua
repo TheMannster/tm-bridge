@@ -123,7 +123,7 @@ function triggerNotify(title, message, type, src, duration)
             DebugPrint("jim-redui not started for RedM notifications.", "WARN")
         end
     else
-        DebugPrint("Unknown Config.Notify system: " .. متوسط(Config.Notify or "nil"), "WARN")
+        DebugPrint("Unknown Config.Notify system: " .. tostring(Config.Notify or "nil"), "WARN")
     end
 end
 

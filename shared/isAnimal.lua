@@ -28,8 +28,9 @@
 -- Global animal classification flags.
 isCat, isDog, isBigDog, isSmallDog, isCoyote, isAnimal = false, false, false, false, false, false
 
-if not isServer() then
-    onPlayerLoaded(function()
+if not Utils.Helpers.isServer() then
+    Citizen.CreateThread(function()
+        local PlayerData = getPlayer() -- Changed getPlayerData to getPlayer
         Wait(2000)
         -- Reset classification flags
         isCat, isDog, isBigDog, isSmallDog, isCoyote = false, false, false, false, false

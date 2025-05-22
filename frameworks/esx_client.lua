@@ -1,4 +1,4 @@
-if Config.Framework ~= Config.Frameworks[Exports.ESXFrameWork].name then return end
+if Config.Framework ~= Config.Frameworks['esx'].name then return end
 
 -- Initialize ESX object if it hasn't been by starter.lua yet (should be, but good practice)
 if not ESX then

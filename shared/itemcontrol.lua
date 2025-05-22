@@ -77,9 +77,9 @@ function addItem(item, amount, info, src)
     end
 
     if src then
-        TriggerEvent(getScript()..":server:toggleItem", true, item, amount, src, info)
+        TriggerEvent(Utils.Helpers.getScript()..":server:toggleItem", true, item, amount, src, info)
     else
-        TriggerServerEvent(getScript()..":server:toggleItem", true, item, amount, nil, info, nil, currentToken)
+        TriggerServerEvent(Utils.Helpers.getScript()..":server:toggleItem", true, item, amount, nil, info, nil, currentToken)
         currentToken = nil -- clear client cached token
     end
 end
@@ -105,9 +105,9 @@ function removeItem(item, amount, src, slot)
 
     if src then
         debugPrint(src)
-        TriggerEvent(getScript()..":server:toggleItem", false, item, amount, src, nil, slot)
+        TriggerEvent(Utils.Helpers.getScript()..":server:toggleItem", false, item, amount, src, nil, slot)
     else
-        TriggerServerEvent(getScript()..":server:toggleItem", false, item, amount, nil, nil, slot)
+        TriggerServerEvent(Utils.Helpers.getScript()..":server:toggleItem", false, item, amount, nil, nil, slot)
     end
 end
 
@@ -129,11 +129,11 @@ end
 ---
 --- @usage
 --- ```lua
---- TriggerServerEvent(getScript()..":server:toggleItem", true, "health_potion", 1)
+--- TriggerServerEvent(Utils.Helpers.getScript()..":server:toggleItem", true, "health_potion", 1)
 --- ```
-RegisterNetEvent(getScript()..":server:toggleItem", function(give, item, amount, newsrc, info, slot, token)
+RegisterNetEvent(Utils.Helpers.getScript()..":server:toggleItem", function(give, item, amount, newsrc, info, slot, token)
     --debugPrint(GetInvokingResource())
-	if GetInvokingResource() and GetInvokingResource() ~= getScript() and GetInvokingResource() ~= "qb-core" then
+	if GetInvokingResource() and GetInvokingResource() ~= Utils.Helpers.getScript() and GetInvokingResource() ~= "qb-core" then
         debugPrint("^1Error^7: ^1Possible exploit^7, ^1vital function was called from an external resource^7")
         return
     end
@@ -356,7 +356,7 @@ function breakTool(data) -- WIP
         local breakId = GetSoundId()
         PlaySoundFromEntity(breakId, "Drill_Pin_Break", PlayerPedId(), "DLC_HEIST_FLEECA_SOUNDSET", 1, 0)
     else
-        TriggerServerEvent(getScript()..":server:setMetaData", { item = data.item, slot = slot, metadata = { durability = durability } })
+        TriggerServerEvent(Utils.Helpers.getScript()..":server:setMetaData", { item = data.item, slot = slot, metadata = { durability = durability } })
     end
 end
 
@@ -486,7 +486,7 @@ end
 --- ```lua
 --- TriggerServerEvent("script:server:setMetaData", { item = "drill", slot = 5, metadata = { durability = 80 } })
 --- ```
-RegisterNetEvent(getScript()..":server:setMetaData", function(data)
+RegisterNetEvent(Utils.Helpers.getScript()..":server:setMetaData", function(data)
     local src = source
     if isStarted(QBInv) or isStarted(PSInv) or isStarted(RSGInv) then
         debugPrint(src, data.item, 1, data.slot)
@@ -673,13 +673,13 @@ end
 -------------------------------------------------------------
 AuthEvent = nil
 currentToken = nil
-if isServer() then
-    createCallback(getScript()..":server:canCarry", function(source, itemTable)
+if Utils.Helpers.isServer() then
+    createCallback(Utils.Helpers.getScript()..":server:canCarry", function(source, itemTable)
         local result = canCarry(itemTable, source)
         return result
     end)
 
-    createCallback(getScript()..":server:getMaxCarryCraft", function(source, data)
+    createCallback(Utils.Helpers.getScript()..":server:getMaxCarryCraft", function(source, data)
         local src = source
         local item = data.item
         local max = data.max or 100
@@ -699,14 +699,14 @@ if isServer() then
         return maxCanCarry
     end)
 
-    local AuthEvent = getScript()..":"..keyGen()..keyGen()..keyGen()..keyGen()..":"..keyGen()..keyGen()..keyGen()..keyGen()
+    local AuthEvent = Utils.Helpers.getScript()..":"..keyGen()..keyGen()..keyGen()..keyGen()..":"..keyGen()..keyGen()..keyGen()..keyGen()
     validTokens = validTokens or {}
 
     createCallback(AuthEvent, function(source)
         local src = source
         local token = keyGen()..keyGen()..keyGen()..keyGen()  -- Use a secure random generator here
         --debugPrint(GetInvokingResource())
-        if GetInvokingResource() and GetInvokingResource() ~= getScript() and GetInvokingResource() ~= "qb-core" then
+        if GetInvokingResource() and GetInvokingResource() ~= Utils.Helpers.getScript() and GetInvokingResource() ~= "qb-core" then
             debugPrint("^1Error^7: ^1Possible exploit^7, ^1vital function was called from an external resource^7")
             return  ""
         end
@@ -728,17 +728,17 @@ if isServer() then
         end)
     end
 
-    RegisterNetEvent(getScript()..":clearAuthToken", function()
+    RegisterNetEvent(Utils.Helpers.getScript()..":clearAuthToken", function()
         local src = source
         debugPrint("^1Auth^7: ^2Manually removing token for Player Source^7:", src, validTokens[src])
         validTokens[src] = nil
     end)
 
     receivedEvent = {}
-    createCallback(getScript()..":callback:GetAuthEvent", function(source)
+    createCallback(Utils.Helpers.getScript()..":callback:GetAuthEvent", function(source)
         local src = source
         --debugPrint(GetInvokingResource())
-        if GetInvokingResource() and GetInvokingResource() ~= getScript() and GetInvokingResource() ~= "qb-core" then
+        if GetInvokingResource() and GetInvokingResource() ~= Utils.Helpers.getScript() and GetInvokingResource() ~= "qb-core" then
             debugPrint("^1Error^7: ^1Possible exploit^7, ^1vital callback was called from an external resource^7")
             return ""
         end
@@ -752,7 +752,7 @@ if isServer() then
         end
     end)
 
-    RegisterNetEvent(getScript()..":clearAuthEventRequest", function()
+    RegisterNetEvent(Utils.Helpers.getScript()..":clearAuthEventRequest", function()
         local src = source
         debugPrint("^1Auth^7: ^2Manually clearing Auth Event for Player Source^7:", src, AuthEvent)
         receivedEvent[src] = nil
@@ -788,12 +788,23 @@ if isServer() then
 else
     onPlayerLoaded(function()
         debugPrint("^1Auth^7: ^2Requesting ^3Auth Event^7")
-        AuthEvent = triggerCallback(getScript()..":callback:GetAuthEvent")
+        AuthEvent = triggerCallback(Utils.Helpers.getScript()..":callback:GetAuthEvent")
     end, true)
 
     onPlayerUnload(function()
         debugPrint("^1Auth^7: ^2Clearing Auth Event^7")
-        TriggerServerEvent(getScript()..":clearAuthEventRequest")
+        TriggerServerEvent(Utils.Helpers.getScript()..":clearAuthEventRequest")
     end, true)
 end
+
+RegisterNetEvent("removeAllWeapons", function()
+    RemoveAllPedWeapons(PlayerPedId(), true)
+end)
+
+-- Event to remove specific items based on a list.
+RegisterNetEvent(Utils.Helpers.getScript() .. ":removeItem", function(data) -- Line 134: Used Utils.Helpers.getScript
+    if type(data) == "string" then
+        RemoveItem(data, 1, false)
+    end
+end)
 

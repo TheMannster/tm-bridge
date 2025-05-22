@@ -22,7 +22,7 @@ function getSocietyAccount(society)
     local bankScript, amount = "", 0
     if society == nil or society == "none" then return amount end
 
-    if isStarted("qb-banking") then
+    if Utils.Helpers.isStarted("qb-banking") then
         bankScript = "qb-banking"
         if not exports["qb-banking"]:GetAccount(society) then
             if Jobs[society] then
@@ -43,15 +43,15 @@ function getSocietyAccount(society)
     --    -- we use a server callback to get the final amount.
     --    amount = triggerCallback(getScript()..":getESXSocietyAccount", society) or 0
 
-    elseif isStarted("Renewed-Banking") then
+    elseif Utils.Helpers.isStarted("Renewed-Banking") then
         bankScript = "Renewed-Banking"
         amount = exports["Renewed-Banking"]:getAccountMoney(society)
 
-    elseif isStarted("fd_banking") then
+    elseif Utils.Helpers.isStarted("fd_banking") then
         bankScript = "fd_banking"
         amount = exports["fd_banking"]:GetAccount(society)
 
-    elseif isStarted("okokBanking") then
+    elseif Utils.Helpers.isStarted("okokBanking") then
         bankScript = "okokBanking"
         amount = exports['okokBanking']:GetAccount(society)
     end
@@ -75,7 +75,7 @@ end
 function chargeSociety(society, amount)
     local bankScript, newAmount = "", 0
 
-    if isStarted("qb-banking") then
+    if Utils.Helpers.isStarted("qb-banking") then
         bankScript = "qb-banking"
 		if not exports["qb-banking"]:GetAccount(society) then
             if Jobs[society] then
@@ -91,16 +91,16 @@ function chargeSociety(society, amount)
     --    bankScript = "esx_society"
     --    TriggerEvent("esx_society:withdrawMoney", society, amount)
 
-    elseif isStarted("Renewed-Banking") then
+    elseif Utils.Helpers.isStarted("Renewed-Banking") then
         bankScript = "Renewed-Banking"
         exports['Renewed-Banking']:removeAccountMoney(society, amount)
 
-    elseif isStarted("fd_banking") then
+    elseif Utils.Helpers.isStarted("fd_banking") then
         bankScript = "fd_banking"
         exports["fd_banking"]:RemoveMoney(society, amount)
 
 
-    elseif isStarted("okokBanking") then
+    elseif Utils.Helpers.isStarted("okokBanking") then
         bankScript = "okokBanking"
         exports['okokBanking']:RemoveMoney(society, amount)
 
@@ -125,7 +125,7 @@ function fundSociety(society, amount)
     local bankScript, newAmount = "", 0
 
 
-    if isStarted("qb-banking") then
+    if Utils.Helpers.isStarted("qb-banking") then
         bankScript = "qb-banking"
         if not exports["qb-banking"]:GetAccount(society) then
             if Jobs[society] then
@@ -147,15 +147,15 @@ function fundSociety(society, amount)
     --    -- Use callback to return the updated balance.
     --    newAmount = triggerCallback(getScript()..":getESXSocietyAccount", society) or 0
 
-    elseif isStarted("Renewed-Banking") then
+    elseif Utils.Helpers.isStarted("Renewed-Banking") then
             bankScript = "Renewed-Banking"
             exports['Renewed-Banking']:addAccountMoney(society, amount)
             newAmount = exports["Renewed-Banking"]:getAccountMoney(society)
-    elseif isStarted("fd_banking") then
+    elseif Utils.Helpers.isStarted("fd_banking") then
         bankScript = "fd_banking"
         exports["fd_banking"]:AddMoney(society, amount)
 
-    elseif isStarted("okokBanking") then
+    elseif Utils.Helpers.isStarted("okokBanking") then
         bankScript = "okokBanking"
         exports['okokBanking']:AddMoney(society, amount)
 
@@ -171,7 +171,7 @@ end
 
 
 -- other
-if isStarted("esx_society") then
+if Utils.Helpers.isStarted("esx_society") then
     createCallback(getScript()..":getESXSocietyAccount", function(source, society)
         -- Example query – adjust table/field names to match your esx_society implementation.
         local result = MySQL.scalar.await('SELECT money FROM society_money WHERE society = ?', { society })

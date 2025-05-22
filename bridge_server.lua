@@ -11,6 +11,7 @@ end
 --- @param src number The player's server ID.
 --- @return table Player object.
 function Bridge.GetPlayer(src)
+    print(string.format("--- bridge_server.lua Bridge.GetPlayer --- Received src: %s (type: %s)", tostring(src), type(src)))
     local fwServer = GetFrameworkServer()
     if fwServer.GetPlayer then
         return fwServer.GetPlayer(src)

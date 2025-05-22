@@ -45,30 +45,33 @@ function onPlayerLoaded(func, onStart)
             func()
         end
 
-        if isStarted(QBExport) or isStarted(QBXExport) then
-            onPlayerFramework = QBExport
+        -- Corrected logic based on Config.Framework set by starter.lua
+        if Config.Framework == "QBCore" and Utils.Helpers.isStarted(Exports.QBFrameWork) then
+            onPlayerFramework = Exports.QBFrameWork
             AddEventHandler('QBCore:Client:OnPlayerLoaded', tempFunc)
-        elseif isStarted(ESXExport) then
-            onPlayerFramework = ESXExport
+        elseif Config.Framework == "QBox" and Utils.Helpers.isStarted(Exports.QBXFrameWork) then
+            onPlayerFramework = Exports.QBXFrameWork
+            AddEventHandler('QBCore:Client:OnPlayerLoaded', tempFunc) -- Assuming QBox uses QBCore event or has its own like 'QBox:Client:OnPlayerLoaded'
+        elseif Config.Framework == "ESX" and Utils.Helpers.isStarted(Exports.ESXFrameWork) then
+            onPlayerFramework = Exports.ESXFrameWork
             AddEventHandler('esx:playerLoaded', function()
                 if waitForSharedLoad() then
-                    if isStarted(ESXExport) then Wait(11000) end
+                    if Utils.Helpers.isStarted(Exports.ESXFrameWork) then Wait(11000) end
                     tempFunc()
                 end
-            end
-        )
-        elseif isStarted(OXCoreExport) then
-            onPlayerFramework = OXCoreExport
+            end)
+        elseif Config.Framework == "OX Core" and Utils.Helpers.isStarted(Exports.OXCoreFrameWork) then
+            onPlayerFramework = Exports.OXCoreFrameWork
             AddEventHandler('ox:playerLoaded', tempFunc)
-        elseif isStarted(RSGExport) then
-            onPlayerFramework = RSGExport
+        elseif Config.Framework == "RSG Core" and Utils.Helpers.isStarted(Exports.RSGFrameWork) then -- For RedM
+            onPlayerFramework = Exports.RSGFrameWork
             AddEventHandler('RSGCore:Client:OnPlayerLoaded', tempFunc)
         end
 
         if onPlayerFramework ~= "" then
             debugPrint("^6Bridge^7: ^2Registering ^3onPlayerLoaded^7()^2 with ^3" .. onPlayerFramework.."^7")
         else
-            print("^4ERROR^7: No supported core detected for onPlayerLoaded - Check starter.lua")
+            print("^4ERROR^7: No supported core detected for onPlayerLoaded. Config.Framework: " .. tostring(Config.Framework))
         end
     end
 end
@@ -108,10 +111,10 @@ end
 function onResourceStart(func, thisScript)
     debugPrint("^6Bridge^7: ^2Registering ^3onResourceStart^7()")
     AddEventHandler('onResourceStart', function(resourceName)
-        if getScript() == resourceName and (thisScript or true) then
+        if Utils.Helpers.getScript() == resourceName and (thisScript or true) then
             if waitForSharedLoad() then
                 debugPrint("^6Bridge^7: ^2Shared Load Detected^7.")
-                if isStarted(ESXExport) then Wait(10000) end
+                if Utils.Helpers.isStarted(ESXExport) then Wait(10000) end
                 func()
             end
         end
@@ -130,7 +133,7 @@ end
 function onResourceStop(func, thisScript)
     debugPrint("^6Bridge^7: ^2Registering ^3onResourceStop^7()")
     AddEventHandler('onResourceStop', function(resourceName)
-        if getScript() == resourceName and (thisScript or true) then
+        if Utils.Helpers.getScript() == resourceName and (thisScript or true) then
             func()
         end
     end)
@@ -148,7 +151,7 @@ function waitForLogin()
     local startTime = GetGameTimer()
     local loggedIn = false
 
-    if isStarted(ESXExport) then
+    if Utils.Helpers.isStarted(ESXExport) then
         while (GetGameTimer() - startTime) < timeout do
             local playerData = ESX.GetPlayerData()
             if playerData and playerData.job then
@@ -157,7 +160,7 @@ function waitForLogin()
             end
             Wait(100)
         end
-    elseif isStarted(OXCoreExport) then
+    elseif Utils.Helpers.isStarted(OXCoreExport) then
         if OxPlayer["stateId"] then
             loggedIn = true
         end
@@ -191,7 +194,6 @@ function waitForSharedLoad()
     local startTime = GetGameTimer()
     local loaded = true
     while ((not Jobs or not next(Jobs)) and (not Items or not next(Items)) and (not Vehicles or not next(Vehicles))) and (GetGameTimer() - startTime) < timeout do
-        print((GetGameTimer() - startTime) < timeout)
         Wait(1000)
         debugPrint("Waiting for Jobs, Items, and Vehicles to be loaded")
         if Jobs and Items and Vehicles then

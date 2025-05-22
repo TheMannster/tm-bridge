@@ -38,7 +38,7 @@ function progressBar(data)
     if data.shared then
         debugPrint("^6Bridge^7: ^6Sharing progressBar to player^7: ^6"..data.shared.pid.."^7")
         storedPID = data.shared.pid
-        TriggerServerEvent(getScript()..":server:sharedProg:Start", data)
+        TriggerServerEvent(Utils.Helpers.getScript()..":server:sharedProg:Start", data)
     end
     local result = nil
     if data.cam then startTempCam(data.cam) end
@@ -189,15 +189,15 @@ function progressBar(data)
     end
     if result == false and data.shared then
         debugPrint("^6Bridge^7: ^2Sending cancel to ^6"..storedPID.."^7")
-        TriggerServerEvent(getScript().."server:sharedProg:cancel", storedPID)
+        TriggerServerEvent(Utils.Helpers.getScript().."server:sharedProg:cancel", storedPID)
     end
     storedPID = nil
     if result == false then
         currentToken = nil
-        TriggerServerEvent(getScript()..":clearAuthToken")
+        TriggerServerEvent(Utils.Helpers.getScript()..":clearAuthToken")
     end
     if result == true and data.request then
-        TriggerServerEvent(getScript()..":clearAuthToken")
+        TriggerServerEvent(Utils.Helpers.getScript()..":clearAuthToken")
         currentToken = triggerCallback(AuthEvent)
     end
     return result
@@ -269,7 +269,7 @@ local storedPID = nil
 --- Server event handler for starting a shared progress bar.
 --- This event is triggered when a player wants to start a progress bar on another player.
 --- It adjusts the data to prevent loops and sends the data to the target client.
-RegisterNetEvent(getScript()..":server:sharedProg:Start", function(data)
+RegisterNetEvent(Utils.Helpers.getScript()..":server:sharedProg:Start", function(data)
     local pid = data.shared.pid     -- Get player ID from the client
     data.label = data.shared.label  -- Set progress bar label to the shared label
     data.cancel = false             -- Make it so it can't be canceled
@@ -277,26 +277,26 @@ RegisterNetEvent(getScript()..":server:sharedProg:Start", function(data)
     data.shared = nil               -- Remove shared info to prevent loops
     data.anim = nil                 -- Remove animation so players don't share it
     debugPrint("^6Bridge^7: ^6"..source.." ^2is sending shared progressBar to player^7, ^6"..pid.."^7")
-    TriggerClientEvent(getScript()..":client:sharedProg:Start", pid, data)
+    TriggerClientEvent(Utils.Helpers.getScript()..":client:sharedProg:Start", pid, data)
 end)
 
 --- Client event handler for starting a shared progress bar.
 --- This event is triggered when the server wants the client to start a shared progress bar.
-RegisterNetEvent(getScript()..":client:sharedProg:Start", function(data)
+RegisterNetEvent(Utils.Helpers.getScript()..":client:sharedProg:Start", function(data)
     debugPrint("^6Bridge^7: ^2You have been sent a progressBar^7")
     progressBar(data)
 end)
 
 --- Server event handler for canceling a shared progress bar.
 --- This event is triggered when a progress bar is canceled and the server needs to notify the other player.
-RegisterNetEvent(getScript()..":server:sharedProg:Cancel", function(pid)
+RegisterNetEvent(Utils.Helpers.getScript()..":server:sharedProg:Cancel", function(pid)
     debugPrint("^6Bridge^7: ^2Sending cancel progressBar to ^6"..pid.."^7")
-    TriggerClientEvent(getScript()..":client:sharedProg:Cancel", pid)
+    TriggerClientEvent(Utils.Helpers.getScript()..":client:sharedProg:Cancel", pid)
 end)
 
 --- Client event handler for canceling a shared progress bar.
 --- This event is triggered when the server wants the client to cancel a shared progress bar.
-RegisterNetEvent(getScript()..":client:sharedProg:Cancel", function()
+RegisterNetEvent(Utils.Helpers.getScript()..":client:sharedProg:Cancel", function()
     debugPrint("^6Bridge^7: ^2Receiving cancel progressBar^7")
     stopProgressBar()
 end)

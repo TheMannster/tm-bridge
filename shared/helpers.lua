@@ -7,25 +7,26 @@
     format numbers and coordinates, handle JSON data, perform raycasts, and more.
 ]]
 
+Utils = Utils or {} -- Ensure Utils exists
+Utils.Helpers = Utils.Helpers or {} -- Ensure Utils.Helpers exists
+
 -------------------------------------------------------------
 -- Resource and Environment Checks
 -------------------------------------------------------------
 
---- Checks if a specific resource is started.
---- @param script string The name of the resource.
---- @return boolean boolean True if the resource state contains "start", false otherwise.
----@usage
---- ```lua
---- if isStarted("myResource") then
----     print("Resource is running")
---- end
---- ```
-function isStarted(script)
-    if not script then
-        print("^1Error^7: ^1Tried to check if ^3nil^2 was started^7, ^1returning ^4false^7")
+--- Checks if a resource is started.
+--- @param resourceName string The name of the resource.
+--- @return boolean True if the resource is started, false otherwise.
+function Utils.Helpers.isStarted(resourceName)
+    if not resourceName or resourceName == "" then
+        -- print("[DEBUG Utils.Helpers.isStarted] Called with nil or empty resourceName")
         return false
     end
-    return GetResourceState(script):find("start") ~= nil
+    local state = GetResourceState(resourceName)
+    if not Utils.Helpers.isServer() and Config.System and Config.System.ClientDebugMode then -- Only log on client if ClientDebugMode is true
+        print(string.format("[DEBUG CLIENT Utils.Helpers.isStarted] Resource: %s, State: %s, Result: %s", resourceName, state, tostring(state == 'started')))
+    end
+    return state == 'started'
 end
 
 local scriptName = nil
@@ -37,7 +38,7 @@ local scriptName = nil
 --- local currentScript = getScript()
 --- print("Current script:", currentScript)
 --- ```
-function getScript()
+function Utils.Helpers.getScript()
     if not scriptName then scriptName = GetCurrentResourceName() end
     return scriptName
 end
@@ -52,7 +53,7 @@ end
 ---     -- Client-specific code
 --- end
 --- ```
-function isServer()
+function Utils.Helpers.isServer()
     return IsDuplicityVersion()
 end
 
@@ -158,8 +159,8 @@ end
 --- local currentTime = GetPrintTime()
 --- debugPrint("Current Time:", currentTime)
 --- ```
-function GetPrintTime()
-    if isServer() then
+function Utils.Helpers.GetPrintTime()
+    if Utils.Helpers.isServer() then
         local hour, min, sec = os.date('%H'), os.date('%M'), os.date('%S')
         return "^7("..string.format("%02d", hour)..":"..string.format("%02d", min)..":"..string.format("%02d", sec)..")"
     else
@@ -534,21 +535,21 @@ function sendLog(text)
 		text = text,
 	}
 
-    debugPrint("^5Log Message^7: "..getScript().." - "..Player.firstname.." "..Player.lastname.."("..Player.source..") ["..Player.citizenId.."]", text)
-	TriggerServerEvent(getScript()..":server:sendlog", data)
+    debugPrint("^5Log Message^7: "..Utils.Helpers.getScript().." - "..Player.firstname.." "..Player.lastname.."("..Player.source..") ["..Player.citizenId.."]", text)
+	TriggerServerEvent(Utils.Helpers.getScript()..":server:sendlog", data)
 end
 
 function sendServerLog(data)
 	local hour, min, sec = os.date('%H'), os.date('%M'), os.date('%S')
 	data.serverTime = { house = hour, min = min, sec = sec }
     --jsonPrint(data)
-	debugPrint("^5Log Message^7: "..getScript().." - "..data.firstname.." "..data.lastname.."("..data.source..") ["..data.id.."]", data.text)
+	debugPrint("^5Log Message^7: "..Utils.Helpers.getScript().." - "..data.firstname.." "..data.lastname.."("..data.source..") ["..data.id.."]", data.text)
 
     -- Add your logger here
 
 end
 
-RegisterNetEvent(getScript()..":server:sendlog", sendServerLog)
+RegisterNetEvent(Utils.Helpers.getScript()..":server:sendlog", sendServerLog)
 
 
 -- This function was created to help create random numbers

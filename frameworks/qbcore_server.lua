@@ -18,8 +18,36 @@ local QBServer = {}
 
 --- QBCore: Get player by source
 function QBServer.GetPlayer(src)
-    if not QBCore then DebugPrint("QBCore not initialized in qbcore_server.GetPlayer", "ERROR"); return nil end
-    return QBCore.Functions.GetPlayer(src)
+    if Config.System and Config.System.ServerDebugMode then
+        print(string.format("--- QBServer.GetPlayer DEBUG --- Attempting to get player for source: %s", tostring(src)))
+        print(string.format("--- QBServer.GetPlayer DEBUG --- QBCore object type: %s", type(QBCore)))
+        if QBCore and QBCore.Functions then
+            print(string.format("--- QBServer.GetPlayer DEBUG --- QBCore.Functions.GetPlayer type: %s", type(QBCore.Functions.GetPlayer)))
+        else
+            print("--- QBServer.GetPlayer DEBUG --- QBCore.Functions is nil or QBCore is nil")
+        end
+    end
+    if not QBCore then 
+        if Config.System and Config.System.ServerDebugMode then
+            print("--- QBServer.GetPlayer ERROR --- QBCore object is not initialized!")
+        end
+        DebugPrint("QBCore not initialized in qbcore_server.GetPlayer", "ERROR"); 
+        return nil 
+    end
+    if not QBCore.Functions or not QBCore.Functions.GetPlayer then
+        if Config.System and Config.System.ServerDebugMode then
+            print("--- QBServer.GetPlayer ERROR --- QBCore.Functions.GetPlayer is not available!")
+        end
+        return nil
+    end
+    local playerObject = QBCore.Functions.GetPlayer(src)
+    if Config.System and Config.System.ServerDebugMode then
+        print(string.format("--- QBServer.GetPlayer DEBUG --- QBCore.Functions.GetPlayer(%s) returned object of type: %s", tostring(src), type(playerObject)))
+        if playerObject == nil then
+            print(string.format("--- QBServer.GetPlayer WARN --- QBCore.Functions.GetPlayer(%s) returned nil.", tostring(src)))
+        end
+    end
+    return playerObject
 end
 
 --- QBCore: Get all players table (keys are server IDs)

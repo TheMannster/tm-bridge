@@ -77,7 +77,7 @@ end
 
 --- Server event handler for urinal usage.
 --- Decreases player's thirst by a random amount.
-RegisterNetEvent(getScript()..":server:Urinal", function()
+RegisterNetEvent(Utils.Helpers.getScript()..":server:Urinal", function()
     local src = source
     local Player = getPlayer(src)
     local thirstamt = math.random(10, 30)
@@ -90,7 +90,7 @@ end)
 --- @event
 --- @param type string "thirst" or "hunger".
 --- @param amount number New value to set.
-RegisterNetEvent(getScript()..":server:setNeed", function(needType, amount)
+RegisterNetEvent(Utils.Helpers.getScript()..":server:setNeed", function(needType, amount)
     local src = source
     if needType == "thirst" then
         setThirst(src, amount)
@@ -109,15 +109,15 @@ end)
 --- setThirst(playerId, 80)
 --- ```
 function setThirst(src, thirst)
-    if isStarted(ESXExport) then
+    if Utils.Helpers.isStarted(ESXExport) then
         TriggerClientEvent('esx_status:add', src, 'thirst', thirst)
 
-    elseif isStarted(QBExport) or isStarted(QBXExport) then
+    elseif Utils.Helpers.isStarted(QBExport) or Utils.Helpers.isStarted(QBXExport) then
         local Player = Core.Functions.GetPlayer(src)
         Player.Functions.SetMetaData('thirst', thirst)
         TriggerClientEvent("hud:client:UpdateNeeds", src, thirst, Player.PlayerData.metadata.thirst)
 
-    elseif isStarted(RSGExport) then
+    elseif Utils.Helpers.isStarted(RSGExport) then
         local Player = Core.Functions.GetPlayer(src)
         Player.Functions.SetMetaData('thirst', thirst)
         TriggerClientEvent("hud:client:UpdateNeeds", src, thirst, Player.PlayerData.metadata.thirst)
@@ -134,15 +134,15 @@ end
 --- setHunger(playerId, 60)
 --- ```
 function setHunger(src, hunger)
-    if isStarted(ESXExport) then
+    if Utils.Helpers.isStarted(ESXExport) then
         TriggerClientEvent('esx_status:add', src, 'hunger', hunger)
 
-    elseif isStarted(QBExport) or isStarted(QBXExport) then
+    elseif Utils.Helpers.isStarted(QBExport) or Utils.Helpers.isStarted(QBXExport) then
         local Player = Core.Functions.GetPlayer(src)
         Player.Functions.SetMetaData('hunger', hunger)
         TriggerClientEvent("hud:client:UpdateNeeds", src, hunger, Player.PlayerData.metadata.hunger)
 
-    elseif isStarted(RSGExport) then
+    elseif Utils.Helpers.isStarted(RSGExport) then
         local Player = Core.Functions.GetPlayer(src)
         Player.Functions.SetMetaData('hunger', hunger)
         TriggerClientEvent("hud:client:UpdateNeeds", src, hunger, Player.PlayerData.metadata.hunger)
@@ -171,32 +171,32 @@ function chargePlayer(cost, moneyType, newsrc)
         return
     end
     if moneyType == "cash" then
-        if isStarted(OXInv) then fundResource = OXInv
+        if Utils.Helpers.isStarted(OXInv) then fundResource = OXInv
             exports[OXInv]:RemoveItem(src, "money", cost)
 
-        elseif isStarted(QBExport) or isStarted(QBXExport) then
+        elseif Utils.Helpers.isStarted(QBExport) or Utils.Helpers.isStarted(QBXExport) then
             fundResource = QBExport
             Core.Functions.GetPlayer(src).Functions.RemoveMoney("cash", cost)
 
-        elseif isStarted(RSGExport) then
+        elseif Utils.Helpers.isStarted(RSGExport) then
             fundResource = RSGExport
             Core.Functions.GetPlayer(src).Functions.RemoveMoney("cash", cost)
 
-        elseif isStarted(ESXExport) then
+        elseif Utils.Helpers.isStarted(ESXExport) then
             fundResource = ESXExport
             ESX.GetPlayerFromId(src).removeMoney(cost, "")
 
         end
     elseif moneyType == "bank" then
-        if isStarted(QBExport) or isStarted(QBXExport) then
+        if Utils.Helpers.isStarted(QBExport) or Utils.Helpers.isStarted(QBXExport) then
             fundResource = QBExport
             Core.Functions.GetPlayer(src).Functions.RemoveMoney("bank", cost)
 
-        elseif isStarted(RSGExport) then
+        elseif Utils.Helpers.isStarted(RSGExport) then
             fundResource = RSGExport
             Core.Functions.GetPlayer(src).Functions.RemoveMoney("bank", cost)
 
-        elseif isStarted(ESXExport) then
+        elseif Utils.Helpers.isStarted(ESXExport) then
             fundResource = ESXExport
             ESX.GetPlayerFromId(src).removeMoney(cost, "")
         end
@@ -208,9 +208,9 @@ function chargePlayer(cost, moneyType, newsrc)
         debugPrint("^6Bridge^7: ^2Charging ^2Player^7: '^6"..cost.."^7'", moneyType, fundResource)
     end
 end
-RegisterNetEvent(getScript()..":server:ChargePlayer", function(cost, moneyType, newsrc)
+RegisterNetEvent(Utils.Helpers.getScript()..":server:ChargePlayer", function(cost, moneyType, newsrc)
     debugPrint(GetInvokingResource())
-	if GetInvokingResource() and GetInvokingResource() ~= getScript() and GetInvokingResource() ~= "qb-core" then
+	if GetInvokingResource() and GetInvokingResource() ~= Utils.Helpers.getScript() and GetInvokingResource() ~= "qb-core" then
         debugPrint("^1Error^7: ^1Possible exploit^7, ^1vital function was called from an external resource^7")
         return
     end
@@ -232,33 +232,33 @@ function fundPlayer(fund, moneyType, newsrc)
     local fundResource = ""
 
     if moneyType == "cash" then
-        if isStarted(OXInv) then
+        if Utils.Helpers.isStarted(OXInv) then
             fundResource = OXInv
             exports[OXInv]:AddItem(src, "money", fund)
 
-        elseif isStarted(QBExport) or isStarted(QBXExport) then
+        elseif Utils.Helpers.isStarted(QBExport) or Utils.Helpers.isStarted(QBXExport) then
             fundResource = QBExport
             Core.Functions.GetPlayer(src).Functions.AddMoney("cash", fund)
 
-        elseif isStarted(RSGExport) then
+        elseif Utils.Helpers.isStarted(RSGExport) then
             fundResource = RSGExport
             Core.Functions.GetPlayer(src).Functions.AddMoney("cash", fund)
 
-        elseif isStarted(ESXExport) then
+        elseif Utils.Helpers.isStarted(ESXExport) then
             fundResource = ESXExport
             ESX.GetPlayerFromId(src).addMoney(fund, "")
 
         end
     elseif moneyType == "bank" then
-        if isStarted(QBExport) or isStarted(QBXExport) then
+        if Utils.Helpers.isStarted(QBExport) or Utils.Helpers.isStarted(QBXExport) then
             fundResource = QBExport
             Core.Functions.GetPlayer(src).Functions.AddMoney("bank", fund)
 
-        elseif isStarted(RSGExport) then
+        elseif Utils.Helpers.isStarted(RSGExport) then
             fundResource = RSGExport
             Core.Functions.GetPlayer(src).Functions.AddMoney("bank", fund)
 
-        elseif isStarted(ESXExport) then
+        elseif Utils.Helpers.isStarted(ESXExport) then
             fundResource = ESXExport
             ESX.GetPlayerFromId(src).addMoney(fund, "")
         end
@@ -299,19 +299,19 @@ function ConsumeSuccess(itemName, type, data)
     ExecuteCommand("e c")
     removeItem(itemName, 1)
 
-    if isStarted(ESXExport) then
+    if Utils.Helpers.isStarted(ESXExport) then
         if hunger then
-            TriggerServerEvent(getScript()..":server:setNeed", "hunger", tonumber(hunger) * 10000)
+            TriggerServerEvent(Utils.Helpers.getScript()..":server:setNeed", "hunger", tonumber(hunger) * 10000)
         end
         if thirst then
-            TriggerServerEvent(getScript()..":server:setNeed", "thirst", tonumber(thirst) * 10000)
+            TriggerServerEvent(Utils.Helpers.getScript()..":server:setNeed", "thirst", tonumber(thirst) * 10000)
         end
     else
         if hunger then
-            TriggerServerEvent(getScript()..":server:setNeed", "hunger", Core.Functions.GetPlayerData().metadata["hunger"] + tonumber(hunger))
+            TriggerServerEvent(Utils.Helpers.getScript()..":server:setNeed", "hunger", Core.Functions.GetPlayerData().metadata["hunger"] + tonumber(hunger))
         end
         if thirst then
-            TriggerServerEvent(getScript()..":server:setNeed", "thirst", Core.Functions.GetPlayerData().metadata["thirst"] + tonumber(thirst))
+            TriggerServerEvent(Utils.Helpers.getScript()..":server:setNeed", "thirst", Core.Functions.GetPlayerData().metadata["thirst"] + tonumber(thirst))
         end
     end
 
@@ -359,8 +359,20 @@ function hasJob(job, source, grade)
     local hasJobFlag, duty = false, true
     if source then
         local src = tonumber(source)
-        if not src then print(tostring(source).." is not a valid player source") end
-        if isStarted(ESXExport) then
+        if not src then 
+            if Config.System and Config.System.ServerDebugMode then
+                print(tostring(source).." is not a valid player source") 
+            end
+        end
+        if Config.System and Config.System.ServerDebugMode then
+            print(string.format("--- TM-BRIDGE: SERVER hasJob CALLED for source %s ---", tostring(src)))
+            print(string.format("--- TM-BRIDGE: SERVER Config.Framework Type: %s, Value: %s ---", type(Config.Framework), tostring(Config.Framework)))
+            print(string.format("--- TM-BRIDGE: SERVER Utils.Helpers.isStarted(QBExport)(\"%s\"): %s ---", Exports.QBFrameWork, tostring(Utils.Helpers.isStarted(Exports.QBFrameWork))))
+            print(string.format("--- TM-BRIDGE: SERVER Utils.Helpers.isStarted(QBXExport)(\"%s\"): %s ---", Exports.QBXFrameWork, tostring(Utils.Helpers.isStarted(Exports.QBXFrameWork))))
+            print(string.format("--- TM-BRIDGE: SERVER Utils.Helpers.isStarted(ESXExport)(\"%s\"): %s ---", Exports.ESXFrameWork, tostring(Utils.Helpers.isStarted(Exports.ESXFrameWork))))
+        end
+
+        if Utils.Helpers.isStarted(Exports.ESXFrameWork) then -- Check 1 (ESXExport is "es_extended")
             local info = ESX.GetPlayerFromId(src).job
             while not info do
                 info = ESX.GetPlayerData(src).job
@@ -368,7 +380,69 @@ function hasJob(job, source, grade)
             end
             if info.name == job then hasJobFlag = true end
 
-        elseif isStarted(OXCoreExport) then
+        elseif Utils.Helpers.isStarted(Exports.QBFrameWork) and not Utils.Helpers.isStarted(Exports.QBXFrameWork) then -- Check 4 (Target for QBCore)
+            if Config.System and Config.System.ServerDebugMode then
+                print("--- TM-BRIDGE: SERVER hasJob - ENTERING QBCore path ---")
+            end
+            if Core.Functions.GetPlayer then
+                local player = Core.Functions.GetPlayer(src)
+                if not player then 
+                    if Config.System and Config.System.ServerDebugMode then
+                        print("Player not found for src: "..src) 
+                    end
+                end
+                local jobinfo = player.PlayerData.job
+                if jobinfo.name == job then
+                    hasJobFlag = true
+                    duty = player.PlayerData.job.onduty
+                    if grade and not (grade <= jobinfo.grade.level) then hasJobFlag = false end
+                end
+                local ganginfo = player.PlayerData.gang
+                if ganginfo.name == job then
+                    hasJobFlag = true
+                    if grade and not (grade <= ganginfo.grade.level) then hasJobFlag = false end
+                end
+            else
+                -- This else is for the Core.Functions.GetPlayer check, not a framework detection failure
+            end
+
+        elseif Utils.Helpers.isStarted(Exports.RSGFrameWork) then -- Check 5
+            if Config.System and Config.System.ServerDebugMode then
+                print("--- TM-BRIDGE: SERVER hasJob - ENTERING RSG Core path ---")
+            end
+            if Core.Functions.GetPlayer then
+                local player = Core.Functions.GetPlayer(src)
+                if not player then 
+                    if Config.System and Config.System.ServerDebugMode then
+                        print("Player not found for src: "..src) 
+                    end
+                end
+                local jobinfo = player.PlayerData.job
+                if jobinfo.name == job then
+                    hasJobFlag = true
+                    duty = player.PlayerData.job.onduty
+                    if grade and not (grade <= jobinfo.grade.level) then hasJobFlag = false end
+                end
+                local ganginfo = player.PlayerData.gang
+                if ganginfo.name == job then
+                    hasJobFlag = true
+                    if grade and not (grade <= ganginfo.grade.level) then hasJobFlag = false end
+                end
+            else
+                local jobinfo = exports[RSGExport]:GetPlayer(src).PlayerData.job
+                if jobinfo.name == job then
+                    hasJobFlag = true
+                    duty = exports[RSGExport]:GetPlayer(src).PlayerData.job.onduty
+                    if grade and not (grade <= jobinfo.grade.level) then hasJobFlag = false end
+                end
+                local ganginfo = exports[RSGExport]:GetPlayer(src).PlayerData.gang
+                if ganginfo.name == job then
+                    hasJobFlag = true
+                    if grade and not (grade <= ganginfo.grade.level) then hasJobFlag = false end
+                end
+            end
+
+        elseif Utils.Helpers.isStarted(OXCoreExport) then
             local chunk = assert(load(LoadResourceFile('ox_core', ('imports/%s.lua'):format('server')), ('@@ox_core/%s'):format(file)))
             chunk()
             local player = Ox.GetPlayer(src)
@@ -376,7 +450,7 @@ function hasJob(job, source, grade)
                 if k == job then hasJobFlag = true end
             end
 
-        elseif isStarted(QBXExport) then
+        elseif Utils.Helpers.isStarted(QBXExport) then
             local jobinfo = exports[QBXExport]:GetPlayer(src).PlayerData.job
             if jobinfo.name == job then
                 hasJobFlag = true
@@ -389,7 +463,7 @@ function hasJob(job, source, grade)
                 if grade and not (grade <= ganginfo.grade.level) then hasJobFlag = false end
             end
 
-        elseif isStarted(QBExport) and not isStarted(QBXExport) then
+        elseif Utils.Helpers.isStarted(QBExport) and not Utils.Helpers.isStarted(QBXExport) then
             if Core.Functions.GetPlayer then
                 local player = Core.Functions.GetPlayer(src)
                 if not player then print("Player not found for src: "..src) end
@@ -417,98 +491,99 @@ function hasJob(job, source, grade)
                     if grade and not (grade <= ganginfo.grade.level) then hasJobFlag = false end
                 end
             end
-
-        elseif isStarted(RSGExport) then
-            if Core.Functions.GetPlayer then
-                local player = Core.Functions.GetPlayer(src)
-                if not player then print("Player not found for src: "..src) end
-                local jobinfo = player.PlayerData.job
-                if jobinfo.name == job then
-                    hasJobFlag = true
-                    duty = player.PlayerData.job.onduty
-                    if grade and not (grade <= jobinfo.grade.level) then hasJobFlag = false end
-                end
-                local ganginfo = player.PlayerData.gang
-                if ganginfo.name == job then
-                    hasJobFlag = true
-                    if grade and not (grade <= ganginfo.grade.level) then hasJobFlag = false end
-                end
-            else
-                local jobinfo = exports[RSGExport]:GetPlayer(src).PlayerData.job
-                if jobinfo.name == job then
-                    hasJobFlag = true
-                    duty = exports[RSGExport]:GetPlayer(src).PlayerData.job.onduty
-                    if grade and not (grade <= jobinfo.grade.level) then hasJobFlag = false end
-                end
-                local ganginfo = exports[RSGExport]:GetPlayer(src).PlayerData.gang
-                if ganginfo.name == job then
-                    hasJobFlag = true
-                    if grade and not (grade <= ganginfo.grade.level) then hasJobFlag = false end
-                end
-            end
         else
-            print("^4ERROR^7: ^2No Core detected for hasJob ^7- ^2Check ^3starter^1.^2lua^7")
+            if Config.System and Config.System.ServerDebugMode then
+                print("--- TM-BRIDGE: SERVER hasJob - FALLING INTO FINAL ELSE (No Core Detected) ---")
+                print("^4ERROR^7: ^2No Core detected for hasJob ^7- ^2Check ^3starter^1.^2lua^7") -- SERVER ERROR
+            end
         end
     else
         -- Client-side check.
-        if isStarted(ESXExport) and ESX ~= nil then
-            local info = ESX.GetPlayerData().job
-            while not info do
-                info = ESX.GetPlayerData().job
-                Wait(100)
-            end
-            if info.name == job then hasJobFlag = true end
+        if Config.System and Config.System.ClientDebugMode then
+            print("--- TM-BRIDGE: ENTERING hasJob CLIENT CHECK ---") -- New simple print
+            -- print(string.format("[DEBUG CLIENT hasJob] Called with job: %s, grade: %s", tostring(job), tostring(grade)))
+            -- print(string.format("[DEBUG CLIENT hasJob] Type of Config.Framework: %s, Value: %s", type(Config.Framework), tostring(Config.Framework)))
+        end
 
-        elseif isStarted(OXCoreExport) then
-            local info = OxPlayer.getGroups()
-            for k, v in pairs(info) do
-                if k == job then hasJobFlag = true break end
+        if Config.Framework == "QBCore" and Utils.Helpers.isStarted(Exports.QBFrameWork) then
+            if Config.System and Config.System.ClientDebugMode then
+                print(string.format("[DEBUG CLIENT hasJob] QBCore path. QBCore global: %s", tostring(QBCore)))
             end
-
-        elseif isStarted(QBXExport) then
-            local info = exports[QBXExport]:GetPlayerData()
-            if info.job.name == job then
-                hasJobFlag = true
-                duty = info.job.onduty
-                if grade and not (grade <= info.job.grade.level) then hasJobFlag = false end
+            if QBCore and QBCore.Functions and QBCore.Functions.GetPlayerData then
+                local info = QBCore.Functions.GetPlayerData() -- Use the global QBCore object
+                if Config.System and Config.System.ClientDebugMode then
+                    print(string.format("[DEBUG CLIENT hasJob] QBCore PlayerData: %s", info and "table" or "nil"))
+                end
+                if info and info.job and info.job.name == job then
+                    hasJobFlag = true
+                    duty = info.job.onduty
+                    if grade and not (grade <= info.job.grade.level) then hasJobFlag = false end
+                    if Config.System and Config.System.ClientDebugMode then
+                        print(string.format("[DEBUG CLIENT hasJob] QBCore job match: %s, duty: %s, grade met: %s", tostring(hasJobFlag), tostring(duty), tostring(not (grade and not (grade <= info.job.grade.level)))))
+                    end
+                end
+                if info and info.gang and info.gang.name == job then -- Check gang as well
+                    hasJobFlag = true -- No separate duty for gang generally in QBCore, or handled by job.onduty
+                    if grade and not (grade <= info.gang.grade.level) then hasJobFlag = false end
+                    if Config.System and Config.System.ClientDebugMode then
+                        print(string.format("[DEBUG CLIENT hasJob] QBCore gang match: %s, grade met: %s", tostring(hasJobFlag), tostring(not (grade and not (grade <= info.gang.grade.level)))))
+                    end
+                end
+            else
+                 if Config.System and Config.System.ClientDebugMode then
+                     print("[DEBUG CLIENT hasJob] QBCore global or QBCore.Functions.GetPlayerData is nil.")
+                 end
             end
-            if info.gang.name == job then
-                hasJobFlag = true
-                if grade and not (grade <= info.gang.grade.level) then hasJobFlag = false end
+        elseif Config.Framework == "ESX" and Utils.Helpers.isStarted(Exports.ESXFrameWork) and ESX ~= nil then
+            if Config.System and Config.System.ClientDebugMode then
+                print(string.format("[DEBUG CLIENT hasJob] ESX path. ESX global: %s", tostring(ESX)))
             end
-
-        elseif isStarted(QBExport) and not isStarted(QBXExport) then
-            local info = nil
-            Core.Functions.GetPlayerData(function(PlayerData) info = PlayerData end)
-            local jobinfo = info.job
-            if jobinfo.name == job then
-                hasJobFlag = true
-                duty = jobinfo.onduty
-                if grade and not (grade <= jobinfo.grade.level) then hasJobFlag = false end
+            if ESX.GetPlayerData then 
+                local info = ESX.GetPlayerData().job
+                if Config.System and Config.System.ClientDebugMode then
+                    print(string.format("[DEBUG CLIENT hasJob] ESX PlayerData Job: %s", info and "table" or "nil"))
+                end
+                -- ... (rest of ESX client logic, ensure ESX.GetPlayerData() is safe) ...
+                while not info do info = ESX.GetPlayerData().job Wait(100) end
+                if info.name == job then hasJobFlag = true end
+            else
+                if Config.System and Config.System.ClientDebugMode then
+                    print("[DEBUG CLIENT hasJob] ESX.GetPlayerData is nil.")
+                end
             end
-            local ganginfo = info.gang
-            if ganginfo.name == job then
-                hasJobFlag = true
-                if grade and not (grade <= ganginfo.grade.level) then hasJobFlag = false end
+        elseif Config.Framework == "OX Core" and Utils.Helpers.isStarted(Exports.OXCoreFrameWork) then
+            -- Add OX Core specific client logic if needed, similar to QBCore/ESX
+            if Config.System and Config.System.ClientDebugMode then
+                print("[DEBUG CLIENT hasJob] OX Core path - Not fully implemented in this debug patch.")
             end
-
-        elseif isStarted(RSGExport) then
-            local info = nil
-            Core.Functions.GetPlayerData(function(PlayerData) info = PlayerData end)
-            local jobinfo = info.job
-            if jobinfo.name == job then
-                hasJobFlag = true
-                duty = jobinfo.onduty
-                if grade and not (grade <= jobinfo.grade.level) then hasJobFlag = false end
+        elseif Config.Framework == "QBox" and Utils.Helpers.isStarted(Exports.QBXFrameWork) then
+             if Config.System and Config.System.ClientDebugMode then
+                 print(string.format("[DEBUG CLIENT hasJob] QBox path. QBCore global (used by QBox): %s", tostring(QBCore)))
+             end
+            if QBCore and QBCore.Functions and QBCore.Functions.GetPlayerData then -- QBox might reuse QBCore global or have its own `exports.qbx_core:GetPlayerData()`
+                local info = QBCore.Functions.GetPlayerData() 
+                -- ... (similar logic as QBCore) ...
+            else
+                if Config.System and Config.System.ClientDebugMode then
+                    print("[DEBUG CLIENT hasJob] QBox: QBCore global or GetPlayerData is nil.")
+                end
             end
-            local ganginfo = info.gang
-            if ganginfo.name == job then
-                hasJobFlag = true
-                if grade and not (grade <= ganginfo.grade.level) then hasJobFlag = false end
+        elseif Config.Framework == "RSG Core" and Utils.Helpers.isStarted(Exports.RSGFrameWork) then
+            if Config.System and Config.System.ClientDebugMode then
+                print("[DEBUG CLIENT hasJob] RSG Core path - Not fully implemented in this debug patch.")
             end
-
         else
-            print("^4ERROR^7: ^2No Core detected for hasJob() ^7- ^2Check ^3starter^1.^2lua^7")
+            if Config.System and Config.System.ClientDebugMode then
+                print("^4ERROR^7: ^2No Core detected for hasJob ^7- ^2Check ^3starter^1.^2lua^7")
+                print(string.format("[DEBUG CLIENT hasJob] Failed all framework checks. Config.Framework: %s, QB Started: %s, ESX Started: %s, OX Started: %s, QBox Started: %s, RSG Started: %s", 
+                    tostring(Config.Framework), 
+                    tostring(Utils.Helpers.isStarted(Exports.QBFrameWork)), 
+                    tostring(Utils.Helpers.isStarted(Exports.ESXFrameWork)),
+                    tostring(Utils.Helpers.isStarted(Exports.OXCoreFrameWork)),
+                    tostring(Utils.Helpers.isStarted(Exports.QBXFrameWork)),
+                    tostring(Utils.Helpers.isStarted(Exports.RSGFrameWork))
+                ))
+            end
         end
     end
     return hasJobFlag, duty
@@ -533,11 +608,13 @@ end
 --- ```
 function getPlayer(source)
     local Player = {}
-    debugPrint("^6Bridge^7: ^2Getting ^3Player^2 info^7")
+    if Config.System and Config.System.ServerDebugMode and source then -- Added source check for server context print
+        debugPrint("^6Bridge^7: ^2Getting ^3Player^2 info^7") -- This is a general debugPrint, might be okay or also server-conditional
+    end
 
     if source then
         local src = tonumber(source)
-        if isStarted(ESXExport) then
+        if Utils.Helpers.isStarted(ESXExport) then
             local info = ESX.GetPlayerFromId(src)
             Player = {
                 name = info.getName(),
@@ -557,7 +634,7 @@ function getPlayer(source)
                 citizenId = info.identifier,
             }
 
-        elseif isStarted(OXCoreExport) then
+        elseif Utils.Helpers.isStarted(OXCoreExport) then
             local file = ('imports/%s.lua'):format('server')
             local import = LoadResourceFile('ox_core', file)
             local chunk = assert(load(import, ('@@ox_core/%s'):format(file)))
@@ -579,7 +656,7 @@ function getPlayer(source)
                 citizenId = player.stateId,
 
             }
-        elseif isStarted(QBXExport) then
+        elseif Utils.Helpers.isStarted(QBXExport) then
             local info = exports[QBXExport]:GetPlayer(src)
             Player = {
                 firstname = info.PlayerData.charinfo.firstname,
@@ -601,31 +678,47 @@ function getPlayer(source)
                 isDown = info.PlayerData.metadata["inlaststand"],
                 charInfo = info.charinfo,
             }
-        elseif isStarted(QBExport) and not isStarted(QBXExport) then
-            if Core.Functions.GetPlayer then
-                local info = Core.Functions.GetPlayer(src).PlayerData
-                Player = {
-                    firstname = info.charinfo.firstname,
-                    lastname = info.charinfo.lastname,
-                    name = info.charinfo.firstname.." "..info.charinfo.lastname,
-                    cash = info.money["cash"],
-                    bank = info.money["bank"],
-                    source = info.source,
-                    job = info.job.name,
-                    jobBoss = info.job.isboss,
-                    jobInfo = info.job,
-                    gang = info.gang.name,
-                    gangBoss = info.gang.isboss,
-                    gangInfo = info.gang,
-                    onDuty = info.job.onduty,
-                    account = info.charinfo.account,
-                    citizenId = info.citizenid,
-                    isDead = info.metadata["isdead"],
-                    isDown = info.metadata["inlaststand"],
-                    charInfo = info.charinfo,
-                }
+        elseif Config.Framework == "QBCore" and Utils.Helpers.isStarted(Exports.QBFrameWork) and not Utils.Helpers.isStarted(Exports.QBXFrameWork) then
+            if Config.System and Config.System.ClientDebugMode then
+                print("--- TM-BRIDGE: getPlayer CLIENT - ENTERING CORRECTED QBCore LOGIC BLOCK ---")
             end
-        elseif isStarted(RSGExport) then
+            if QBCore and QBCore.Functions and QBCore.Functions.GetPlayerData then
+                local info = QBCore.Functions.GetPlayerData() -- Direct synchronous call
+                if Config.System and Config.System.ClientDebugMode then
+                    print(string.format("--- TM-BRIDGE: getPlayer CLIENT (QBCore) - Synchronous GetPlayerData() returned: %s ---", info and type(info) or "nil"))
+                end
+                if info then
+                    Player = {
+                        firstname = info.charinfo.firstname,
+                        lastname = info.charinfo.lastname,
+                        name = info.charinfo.firstname.." "..info.charinfo.lastname,
+                        cash = info.money["cash"],
+                        bank = info.money["bank"],
+                        source = info.source, 
+                        job = info.job.name,
+                        jobBoss = info.job.isboss,
+                        jobInfo = info.job,
+                        gang = info.gang.name,
+                        gangBoss = info.gang.isboss,
+                        gangInfo = info.gang,
+                        onDuty = info.job.onduty,
+                        account = info.charinfo.account,
+                        citizenId = info.citizenid,
+                        isDead = info.metadata["isdead"],
+                        isDown = info.metadata["inlaststand"],
+                        charInfo = info.charinfo,
+                    }
+                else
+                    if Config.System and Config.System.ClientDebugMode then
+                        print("--- TM-BRIDGE: getPlayer CLIENT (QBCore) - Synchronous GetPlayerData() returned nil. Player table not populated. ---")
+                    end
+                end
+            else
+                if Config.System and Config.System.ClientDebugMode then
+                    print("--- TM-BRIDGE: getPlayer CLIENT (QBCore) - QBCore global or QBCore.Functions.GetPlayerData is nil. Player table not populated. ---")
+                end
+            end
+        elseif Utils.Helpers.isStarted(RSGExport) then
             if Core.Functions.GetPlayer then
                 local info = Core.Functions.GetPlayer(src).PlayerData
                 Player = {
@@ -650,11 +743,28 @@ function getPlayer(source)
                 }
             end
         else
-            print("^4ERROR^7: ^2No Core detected for getPlayer() - Check starter.lua")
+            if Config.System and Config.System.ServerDebugMode then
+                print("^4ERROR^7: ^2No Core detected for getPlayer() - Check starter.lua")
+            end
         end
     else
         -- Client-side: Get current player info.
-        if isStarted(ESXExport) and ESX ~= nil then
+        if Config.System and Config.System.ClientDebugMode then
+            print("--- TM-BRIDGE: ENTERING getPlayer CLIENT ---")
+            print(string.format("--- DEBUG: getPlayer CLIENT - Config.Framework: %s (Type: %s) ---", tostring(Config.Framework), type(Config.Framework)))
+            print(string.format("--- DEBUG: getPlayer CLIENT - Exports.QBFrameWork: %s, Started: %s ---", tostring(Exports.QBFrameWork), tostring(Utils.Helpers.isStarted(Exports.QBFrameWork))))
+            print(string.format("--- DEBUG: getPlayer CLIENT - Exports.QBXFrameWork: %s, Started: %s ---", tostring(Exports.QBXFrameWork), tostring(Utils.Helpers.isStarted(Exports.QBXFrameWork))))
+            print(string.format("--- DEBUG: getPlayer CLIENT - Exports.ESXFrameWork: %s, Started: %s, ESX global: %s ---", tostring(Exports.ESXFrameWork), tostring(Utils.Helpers.isStarted(Exports.ESXFrameWork)), tostring(ESX)))
+            print(string.format("--- DEBUG: getPlayer CLIENT - Exports.OXCoreFrameWork: %s, Started: %s, OxPlayer global: %s ---", tostring(Exports.OXCoreFrameWork), tostring(Utils.Helpers.isStarted(Exports.OXCoreFrameWork)), tostring(OxPlayer)))
+            print(string.format("--- DEBUG: getPlayer CLIENT - Exports.RSGFrameWork: %s, Started: %s ---", tostring(Exports.RSGFrameWork), tostring(Utils.Helpers.isStarted(Exports.RSGFrameWork))))
+            if QBCore and QBCore.Functions then
+                print(string.format("--- DEBUG: getPlayer CLIENT - QBCore.Functions.GetPlayerData exists: %s ---", tostring(QBCore.Functions.GetPlayerData ~= nil)))
+            else
+                print(string.format("--- DEBUG: getPlayer CLIENT - QBCore global or QBCore.Functions is nil. QBCore: %s ---", tostring(QBCore)))
+            end
+        end
+
+        if Utils.Helpers.isStarted(ESXExport) and ESX ~= nil then
             local info = ESX.GetPlayerData()
             local cash, bank = 0, 0
             for k, v in pairs(info.accounts) do
@@ -678,7 +788,7 @@ function getPlayer(source)
                 isDead = IsEntityDead(PlayerPedId()),
                 isDown = IsPedDeadOrDying(PlayerPedId(), true)
             }
-        elseif isStarted(OXCoreExport) then
+        elseif Utils.Helpers.isStarted(OXCoreExport) then
             Player = {
                 firstname = OxPlayer.get("firstName"),
                 lastname = OxPlayer.get("lastName"),
@@ -696,7 +806,7 @@ function getPlayer(source)
                 isDead = IsEntityDead(PlayerPedId()),
                 isDown = IsPedDeadOrDying(PlayerPedId(), true)
             }
-        elseif isStarted(QBXExport) then
+        elseif Utils.Helpers.isStarted(QBXExport) then
             local info = exports[QBXExport]:GetPlayerData()
             Player = {
                 firstname = info.charinfo.firstname,
@@ -718,30 +828,47 @@ function getPlayer(source)
                 isDown = info.metadata["inlaststand"],
                 charInfo = info.charinfo,
             }
-        elseif isStarted(QBExport) and not isStarted(QBXExport) then
-            local info = nil
-            Core.Functions.GetPlayerData(function(PlayerData) info = PlayerData end)
-            Player = {
-                firstname = info.charinfo.firstname,
-                lastname = info.charinfo.lastname,
-                name = info.charinfo.firstname.." "..info.charinfo.lastname,
-                cash = info.money["cash"],
-                bank = info.money["bank"],
-                source = info.source,
-                job = info.job.name,
-                jobBoss = info.job.isboss,
-                jobInfo = info.job,
-                gang = info.gang.name,
-                gangBoss = info.gang.isboss,
-                gangInfo = info.gang,
-                onDuty = info.job.onduty,
-                account = info.charinfo.account,
-                citizenId = info.citizenid,
-                isDead = info.metadata["isdead"],
-                isDown = info.metadata["inlaststand"],
-                charInfo = info.charinfo,
-            }
-        elseif isStarted(RSGExport) then
+        elseif Config.Framework == "QBCore" and Utils.Helpers.isStarted(Exports.QBFrameWork) and not Utils.Helpers.isStarted(Exports.QBXFrameWork) then
+            if Config.System and Config.System.ClientDebugMode then
+                print("--- TM-BRIDGE: getPlayer CLIENT - ENTERING CORRECTED QBCore LOGIC BLOCK ---")
+            end
+            if QBCore and QBCore.Functions and QBCore.Functions.GetPlayerData then
+                local info = QBCore.Functions.GetPlayerData() -- Direct synchronous call
+                if Config.System and Config.System.ClientDebugMode then
+                    print(string.format("--- TM-BRIDGE: getPlayer CLIENT (QBCore) - Synchronous GetPlayerData() returned: %s ---", info and type(info) or "nil"))
+                end
+                if info then
+                    Player = {
+                        firstname = info.charinfo.firstname,
+                        lastname = info.charinfo.lastname,
+                        name = info.charinfo.firstname.." "..info.charinfo.lastname,
+                        cash = info.money["cash"],
+                        bank = info.money["bank"],
+                        source = info.source, 
+                        job = info.job.name,
+                        jobBoss = info.job.isboss,
+                        jobInfo = info.job,
+                        gang = info.gang.name,
+                        gangBoss = info.gang.isboss,
+                        gangInfo = info.gang,
+                        onDuty = info.job.onduty,
+                        account = info.charinfo.account,
+                        citizenId = info.citizenid,
+                        isDead = info.metadata["isdead"],
+                        isDown = info.metadata["inlaststand"],
+                        charInfo = info.charinfo,
+                    }
+                else
+                    if Config.System and Config.System.ClientDebugMode then
+                        print("--- TM-BRIDGE: getPlayer CLIENT (QBCore) - Synchronous GetPlayerData() returned nil. Player table not populated. ---")
+                    end
+                end
+            else
+                if Config.System and Config.System.ClientDebugMode then
+                    print("--- TM-BRIDGE: getPlayer CLIENT (QBCore) - QBCore global or QBCore.Functions.GetPlayerData is nil. Player table not populated. ---")
+                end
+            end
+        elseif Utils.Helpers.isStarted(RSGExport) then
             local info = nil
             Core.Functions.GetPlayerData(function(PlayerData) info = PlayerData end)
             Player = {
@@ -765,7 +892,9 @@ function getPlayer(source)
                 charInfo = info.charinfo,
             }
         else
-            print("^4ERROR^7: ^2No Core detected for hasJob ^7- ^2Check ^3starter^1.^2lua^7")
+            if Config.System and Config.System.ServerDebugMode then
+                print("^4ERROR^7: ^2No Core detected for getPlayer (CLIENT) ^7- ^2Check ^3starter^1.^2lua^7")
+            end
         end
     end
     return Player
@@ -793,4 +922,13 @@ function GetPlayersFromCoords(coords, radius)
         end
     end
     return players
+end
+
+-- Server-side event to handle player data requests from the client.
+if Utils.Helpers.isServer() then
+    RegisterNetEvent(Utils.Helpers.getScript() .. ":server:getPlayerData", function(targetPlayerId)
+        local src = source
+        local data = GetPlayer(targetPlayerId or src)
+        TriggerClientEvent(Utils.Helpers.getScript() .. ":client:playerData", src, data)
+    end)
 end

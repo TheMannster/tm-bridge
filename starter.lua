@@ -4,25 +4,25 @@ local function InitializeFrameworkObjects(fwName)
     if fwName == Config.Frameworks[Exports.QBFrameWork].name and exports[Exports.QBFrameWork] then -- Check against actual fwName from Config.Frameworks
         QBCore = exports[Exports.QBFrameWork]:GetCoreObject()
         if QBCore then
-            DebugPrint("QBCore Core Object initialized.")
+            DebugPrint("^3QBCore Core Object initialized.", "INFO")
         else
             DebugPrint("Failed to initialize QBCore Core Object.", "ERROR")
         end
     elseif fwName == Config.Frameworks[Exports.ESXFrameWork].name and exports[Exports.ESXFrameWork] then
         ESX = exports[Exports.ESXFrameWork]:getSharedObject()
         if ESX then
-            DebugPrint("ESX Shared Object initialized.")
+            DebugPrint("^3ESX Shared Object initialized.", "INFO")
         else
             DebugPrint("Failed to initialize ESX Shared Object.", "ERROR")
         end
     elseif fwName == Config.Frameworks[Exports.OXCoreFrameWork].name and exports[Exports.OXCoreFrameWork] then
         -- Assuming ox_core might not have a single global object like QBCore/ESX
         -- but its presence is confirmed by isStarted. Utils.isStarted can be used by modules.
-        DebugPrint("OX Core detected. Modules should use exports.ox_core directly or via Utils.isStarted.")
+        DebugPrint("^3OX Core detected. Modules should use exports.ox_core directly or via Utils.isStarted.", "INFO")
     elseif fwName == Config.Frameworks[Exports.QBXFrameWork].name and exports[Exports.QBXFrameWork] then
         QBCore = exports[Exports.QBXFrameWork]:GetCoreObject() -- Or appropriate QBox way to get core
         if QBCore then -- Assuming QBox provides a similar GetCoreObject or it's handled like OX Core
-            DebugPrint("QBox Core Object initialized.")
+            DebugPrint("^3QBox Core Object initialized.", "INFO")
         else
             DebugPrint("Failed to initialize QBox Core Object or uses direct exports.", "WARN")
         end
@@ -36,7 +36,7 @@ local function DetectFramework()
     if Config.FrameworkOverride then
         if Config.Frameworks[Config.FrameworkOverride] then
             Config.Framework = Config.Frameworks[Config.FrameworkOverride].name -- Store the proper name
-            DebugPrint(string.format("Framework Override: %s (%s)", Config.Framework, Config.FrameworkOverride))
+            DebugPrint(string.format("^3Framework Override: %s (%s)", Config.Framework, Config.FrameworkOverride), "INFO")
             InitializeFrameworkObjects(Config.Framework)
         else
             DebugPrint(string.format("Invalid FrameworkOverride: %s. Falling back to auto-detection.", Config.FrameworkOverride), "ERROR")
@@ -46,14 +46,15 @@ local function DetectFramework()
 
     if not Config.Framework then -- Proceed with auto-detection if no valid override
         for fwKey, fwData in pairs(Config.Frameworks) do
-            if fwKey == 'standalone' then goto continue end -- Skip standalone in initial auto-detect loop, handle as fallback
-            local checkFunc = IsDuplicityVersion() and fwData.isServer or fwData.isClient
-            if checkFunc and checkFunc() then
-                Config.Framework = fwData.name -- Store the proper name
-                DebugPrint(string.format("Auto-Detected Framework: %s (%s)", Config.Framework, fwKey))
-                InitializeFrameworkObjects(Config.Framework)
-                break
-            end
+            if fwKey ~= 'standalone' then
+                local checkFunc = IsDuplicityVersion() and fwData.isServer or fwData.isClient
+                if checkFunc and checkFunc() then
+                    Config.Framework = fwData.name -- Store the proper name
+                    DebugPrint(string.format("^3Auto-Detected Framework: %s (%s)", Config.Framework, fwKey), "INFO")
+                    InitializeFrameworkObjects(Config.Framework)
+                    break
+                end
+            end -- Closes if fwKey ~= 'standalone'
         end
     end
 
@@ -73,11 +74,11 @@ local function DetermineSystem(systemNameSingular, systemNamePlural, overrideKey
     local actualSystemName = nil
     if Config[overrideKey] then
         actualSystemName = Config[overrideKey]
-        DebugPrint(string.format("%s Override: %s", systemNameSingular, actualSystemName))
+        DebugPrint(string.format("^3%s Override: %s^7", systemNameSingular, actualSystemName), "INFO")
     else
         actualSystemName = autoDetectFunc()
         if actualSystemName then
-            DebugPrint(string.format("Auto-Detected %s: %s", systemNameSingular, actualSystemName))
+            DebugPrint(string.format("^3Auto-Detected %s: %s^7", systemNameSingular, actualSystemName), "INFO")
         else
             actualSystemName = defaultValue
             DebugPrint(string.format("No %s detected or overridden, defaulting to: %s", systemNameSingular, actualSystemName), "WARN")
@@ -162,85 +163,73 @@ local function AutoDetectSystems()
     end, 'none')
 end
 
+-- Initialize systems immediately when starter.lua is loaded
+DetectFramework()
+AutoDetectSystems()
+TriggerEvent(Config.ResourceName .. ':systemsDetected') -- Notify that systems are detected (server to clients)
+-- TriggerClientEvent(Config.ResourceName .. ':systemsDetected', -1) -- REMOVED: Not available in shared script context and was causing error.
+
+DebugPrint(string.format("^3Initial effective framework: %s^7", Config.Framework or "None"), "INFO")
+DebugPrint(string.format("^3Initial effective menu system: %s^7", Config.Menu or "None"), "INFO")
+DebugPrint(string.format("^3Initial effective notify system: %s^7", Config.Notify or "None"), "INFO")
+DebugPrint(string.format("^3Initial effective inventory system: %s^7", Config.Inventory or "None"), "INFO")
+DebugPrint(string.format("^3Initial effective progress bar system: %s^7", Config.ProgressBar or "None"), "INFO")
+DebugPrint(string.format("^3Initial effective draw text system: %s^7", Config.DrawText or "None"), "INFO")
+DebugPrint(string.format("^3Initial effective skill check system: %s^7", Config.SkillCheck or "None"), "INFO")
+DebugPrint(string.format("^3Initial effective target system: %s (DontUseTarget: %s)^7", Config.Target or "None", tostring(Config.DontUseTarget)), "INFO")
+
+
 AddEventHandler('onResourceStart', function(resourceName)
     if resourceName == Config.ResourceName then
-        DetectFramework() -- Detects/sets Config.Framework and initializes QBCore/ESX objects
-        -- Utils.Helpers should be available after helpers.lua is loaded by LoadSharedFiles
-        -- However, we need isStarted for AutoDetectSystems, so we call LoadSharedFiles first.
-        LoadSharedFiles() 
-        AutoDetectSystems() -- Detects/sets Config.Menu, Config.Notify etc.
-
-        DebugPrint(string.format("Final effective framework: %s", Config.Framework or "None"))
-        DebugPrint(string.format("Final effective menu system: %s", Config.Menu or "None"))
-        DebugPrint(string.format("Final effective notify system: %s", Config.Notify or "None"))
-        DebugPrint(string.format("Final effective inventory system: %s", Config.Inventory or "None"))
-        DebugPrint(string.format("Final effective progress bar system: %s", Config.ProgressBar or "None"))
-        DebugPrint(string.format("Final effective draw text system: %s", Config.DrawText or "None"))
-        DebugPrint(string.format("Final effective skill check system: %s", Config.SkillCheck or "None"))
-        DebugPrint(string.format("Final effective target system: %s (DontUseTarget: %s)", Config.Target or "None", tostring(Config.DontUseTarget)))
-
+        -- Systems are already detected at the top level of this script.
+        -- We might re-trigger the event for late joiners or specific reloads if necessary,
+        -- but primary detection is done.
+        DebugPrint("Resource started. Systems were detected on initial load of starter.lua.", "INFO")
+        -- Optionally, re-trigger events if needed for other scripts listening to this on a fresh start
+        -- TriggerEvent(Config.ResourceName .. ':systemsDetected')
+        -- TriggerClientEvent(Config.ResourceName .. ':systemsDetected', -1)
     end
 end)
 
--- Function to load shared files (assuming this is already defined or will be kept from previous steps)
-function LoadSharedFiles()
-    local sharedFiles = {
-        'shared/helpers.lua', -- Must be loaded first for Utils.Helpers
-        'shared/loaders.lua', -- For Utils.Loaders asset management
-        'shared/_loaders.lua', -- For event handlers and initial load orchestration
-        'shared/callback.lua',
-        'shared/crafting.lua',
-        'shared/drawText.lua',
-        'shared/effects.lua',
-        'shared/input.lua',
-        'shared/notify.lua',
-        'shared/phones.lua',
-        'shared/shops.lua',
-        'shared/targets.lua',
-        'shared/zones.lua',
-        'shared/make/cameras.lua',
-        'shared/make/makePed.lua',
-        'shared/make/makeVeh.lua'
-    }
-
-    for _, filePath in ipairs(sharedFiles) do
-        local status, err = pcall(function()
-            local fullPath = '@' .. Config.ResourceName .. '/' .. filePath
-            if Config.DebugMode then
-                DebugPrint("Loading shared file: " .. filePath, "INFO")
-            end
-            local chunk, loadErr = loadfile(fullPath)
-            if not chunk then
-                error(string.format("Failed to load chunk for %s: %s", filePath, loadErr))
-            end
-            local success, runErr = pcall(chunk)
-            if not success then
-                error(string.format("Failed to run %s: %s", filePath, runErr))
-            end
-        end)
-        if not status then
-            DebugPrint(string.format("Critical error loading shared file %s: %s. Bridge may not function correctly.", filePath, err), "FATAL")
-        end
-    end
-end
+-- Commented out LoadSharedFiles function from previous steps
+-- function LoadSharedFiles()
+-- ... existing code ...
+-- end
 
 
 -- Ensure Config.Framework is set on resource restart/late start scenarios
+-- This delayed check might still be useful for rare edge cases or if another resource 
+-- modifies environment causing a need to re-detect. 
+-- However, the primary detection now happens on script load.
 Citizen.CreateThread(function()
-    Citizen.Wait(2500) -- Adjusted wait time to allow for shared files and systems to settle
+    Citizen.Wait(5000) -- Increased wait time, ensure all other scripts had a chance to load
+    local recheckNeeded = false
     if not Config.Framework then
-        DebugPrint("Re-checking for framework after initial load delay...")
+        DebugPrint("Re-checking for framework after DELAYED check...")
         DetectFramework()
         if not Config.Framework then
-             DebugPrint("No compatible framework detected after late check. Bridge functionality will be limited.", "WARN")
+             DebugPrint("No compatible framework detected after DELAYED check. Bridge functionality will be limited.", "WARN")
+        else
+            recheckNeeded = true
         end
     end
     if not Config.Menu then -- Also re-check other systems if not populated
-        DebugPrint("Re-checking for other systems after initial load delay...")
+        DebugPrint("Re-checking for other systems after DELAYED check...")
         if Utils.Helpers and Utils.Helpers.isStarted then -- Make sure helpers are loaded
             AutoDetectSystems()
+            recheckNeeded = true
         else
-            DebugPrint("Cannot re-check systems, Utils.Helpers not available. Shared files might not have loaded.", "ERROR")
+            DebugPrint("Cannot re-check systems (DELAYED), Utils.Helpers not available. Shared files might not have loaded.", "ERROR")
         end
+    end
+
+    if recheckNeeded then
+        DebugPrint("Re-triggering systemsDetected event after DELAYED check and re-detection.", "INFO")
+        TriggerEvent(Config.ResourceName .. ':systemsDetected')
+        TriggerClientEvent(Config.ResourceName .. ':systemsDetected', -1)
+        
+        DebugPrint(string.format("^3DELAYED Check - Effective framework: %s^7", Config.Framework or "None"), "INFO")
+        DebugPrint(string.format("^3DELAYED Check - Effective menu system: %s^7", Config.Menu or "None"), "INFO")
+        -- Add other system prints if necessary
     end
 end) 

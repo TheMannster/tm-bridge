@@ -13,8 +13,8 @@
 local stash
 
 -- If running on the server, create a callback to retrieve stash items.
-if isServer() then
-    createCallback(getScript()..':server:GetStashItems', function(source, stashName)
+if Utils.Helpers.isServer() then
+    createCallback(Utils.Helpers.getScript()..':server:GetStashItems', function(source, stashName)
         stash = getStash(stashName)
         return stash
     end)
@@ -58,7 +58,7 @@ function GetStashTimeout(stashName, stop)
 
     -- If timeout has expired, update the stash items from the server.
     if stashCache[stashName].timeout <= 0 then
-        stashCache[stashName].items = triggerCallback(getScript()..':server:GetStashItems', stashName)
+        stashCache[stashName].items = triggerCallback(Utils.Helpers.getScript()..':server:GetStashItems', stashName)
         stashCache[stashName].timeout = 10000  -- Timeout in milliseconds.
         CreateThread(function()
             while stashCache[stashName] and stashCache[stashName].timeout > 0 do
@@ -144,7 +144,7 @@ function openStash(data)
         exports[OrigenInv]:openInventory('stash', data.stash, { label = data.label })
 
     elseif isStarted(TgiannInv) then
-        TriggerServerEvent(getScript()..':server:openServerStash', {
+        TriggerServerEvent(Utils.Helpers.getScript()..':server:openServerStash', {
             stashName = data.stash,
             label = data.label,
             maxweight = data.maxWeight or 600000,
@@ -153,7 +153,7 @@ function openStash(data)
 
     elseif isStarted(QBInv) then
         if QBInvNew then
-            TriggerServerEvent(getScript()..':server:openServerStash', {
+            TriggerServerEvent(Utils.Helpers.getScript()..':server:openServerStash', {
                 stashName = data.stash,
                 label = data.label,
                 maxweight = data.maxWeight or 600000,
@@ -169,7 +169,7 @@ function openStash(data)
 
     elseif isStarted(PSInv) then
         if QBInvNew then
-            TriggerServerEvent(getScript()..':server:openServerStash', {
+            TriggerServerEvent(Utils.Helpers.getScript()..':server:openServerStash', {
                 stashName = data.stash,
                 label = data.label,
                 maxweight = data.maxWeight or 600000,
@@ -184,7 +184,7 @@ function openStash(data)
         end
 
     elseif isStarted(RSGInv) then
-        TriggerServerEvent(getScript()..':server:openServerStash', {
+        TriggerServerEvent(Utils.Helpers.getScript()..':server:openServerStash', {
             stashName = data.stash,
             label = data.label,
             maxweight = data.maxWeight or 600000,
@@ -206,7 +206,7 @@ end
 
 -- Wrapper function for opening stash from the server.
 -- Messy but not much else I can do about it.
-RegisterNetEvent(getScript()..":server:openServerStash", function(data)
+RegisterNetEvent(Utils.Helpers.getScript()..":server:openServerStash", function(data)
     local src = source
     if isStarted(TgiannInv) then
         exports[TgiannInv]:OpenInventory(source, 'stash', data.stashName, data)
@@ -451,7 +451,7 @@ function stashRemoveItem(stashItems, stashName, items)
         print("^4ERROR^7: ^2No Inventory detected ^7- ^2Check ^3starter^1.^2lua^7")
     end
 end
-RegisterNetEvent(getScript()..":server:stashRemoveItem", stashRemoveItem)
+RegisterNetEvent(Utils.Helpers.getScript()..":server:stashRemoveItem", stashRemoveItem)
 
 -------------------------------------------------------------
 -- Stash Item Availability Check
@@ -548,7 +548,7 @@ function registerStash(name, label, slots, weight, owner, coords)
     end
 end
 
-if isServer() then
+if Utils.Helpers.isServer() then
     --- Registers an event to create an OX stash from the server.
     --- When triggered, it calls registerStash with the provided parameters.
     ---
@@ -561,9 +561,9 @@ if isServer() then
     --- @param coords table|nil (Optional) Stash coordinates.
     --- @usage
     --- ```lua
-    --- TriggerEvent(getScript()..":server:makeOXStash", name, label, slots, weight, owner, coords, token)
+    --- TriggerEvent(Utils.Helpers.getScript()..":server:makeOXStash", name, label, slots, weight, owner, coords, token)
     --- ```
-    RegisterNetEvent(getScript()..":server:makeOXStash", function(name, label, slots, weight, owner, coords, token)
+    RegisterNetEvent(Utils.Helpers.getScript()..":server:makeOXStash", function(name, label, slots, weight, owner, coords, token)
         local src = source or nil
         if src then
             if not checkToken(src, token, "stash", name) then
@@ -575,7 +575,7 @@ if isServer() then
     end)
 end
 
-RegisterNetEvent(getScript()..":openGrabBox", function(data)
+RegisterNetEvent(Utils.Helpers.getScript()..":openGrabBox", function(data)
 	if isStarted(OXInv) then
 		return
 	end
@@ -589,3 +589,23 @@ RegisterNetEvent(getScript()..":openGrabBox", function(data)
 		stash = id,
 	})
 end)
+
+local openStashes = {}
+local usedStashes = {}
+
+AddEventHandler("onResourceStop", function(resourceName)
+    if resourceName == Utils.Helpers.getScript() then -- Used Utils.Helpers.getScript
+        for k, v in pairs(openStashes) do
+            if DoesEntityExist(v) then
+                SetEntityAsMissionEntity(v, false, true)
+                DeleteEntity(v)
+            end
+        end
+    end
+end)
+
+if not Utils.Helpers.isServer() then -- Line 16: Used Utils.Helpers.isServer
+    AddEventHandler("playerSpawned", function()
+        usedStashes = {}
+    end)
+end

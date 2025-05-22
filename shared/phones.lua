@@ -41,7 +41,7 @@ function sendPhoneMail(data)
         },
         {   name = "yflip-phone",
             send = function(mailData)
-                TriggerServerEvent(getScript()..":yflip:SendMail", mailData)
+                TriggerServerEvent(Utils.Helpers.getScript()..":yflip:SendMail", mailData)
             end,
         },
         {   name = "qs-smartphone",
@@ -65,7 +65,7 @@ function sendPhoneMail(data)
             send = function(mailData)
                 -- Convert HTML line breaks to newlines for lb-phone.
                 mailData.message = mailData.message:gsub("%<br>", "\n")
-                TriggerServerEvent(getScript()..":lbphone:SendMail", mailData)
+                TriggerServerEvent(Utils.Helpers.getScript()..":lbphone:SendMail", mailData)
             end,
         },
         {   name = "qb-phone",
@@ -75,7 +75,7 @@ function sendPhoneMail(data)
         },
         {   name = "jpr-phonesystem",
             send = function(mailData)
-                TriggerServerEvent(getScript()..":jpr:SendMail", mailData)
+                TriggerServerEvent(Utils.Helpers.getScript()..":jpr:SendMail", mailData)
             end,
         },
         {   name = "ef-phone",
@@ -114,7 +114,7 @@ end
 ---   - subject (string): The email subject.
 ---   - message (string): The email content.
 ---   - buttons (table|nil): Optional action buttons (mapped from data.actions if present).
-RegisterNetEvent(getScript()..":lbphone:SendMail", function(data)
+RegisterNetEvent(Utils.Helpers.getScript()..":lbphone:SendMail", function(data)
     local src = source
     local phoneNumber = exports["lb-phone"]:GetEquippedPhoneNumber(src)
     local emailAddress = exports["lb-phone"]:GetEmailAddress(phoneNumber)
@@ -138,7 +138,7 @@ end)
 ---   - sender (string): The sender identifier.
 ---   - message (string): The email content.
 ---   - buttons (table|nil): Optional action buttons.
-RegisterNetEvent(getScript()..":yflip:SendMail", function(data)
+RegisterNetEvent(Utils.Helpers.getScript()..":yflip:SendMail", function(data)
     local src = source
     exports["yflip-phone"]:SendMail({
         title = data.subject,
@@ -158,7 +158,7 @@ end)
 ---   - sender (string): The sender identifier.
 ---   - message (string): The email content.
 ---   - buttons (table|nil): Optional action buttons.
-RegisterNetEvent(getScript()..":jpr:SendMail", function(data)
+RegisterNetEvent(Utils.Helpers.getScript()..":jpr:SendMail", function(data)
     local src = source
     local Player = Core.Functions.GetPlayer(src)
     TriggerEvent('jpr-phonesystem:server:sendEmail', {
