@@ -34,7 +34,7 @@ Config.VersionCheck = true
 --   DrawText values    :  'ox' | 'qb' | 'esx' | 'rdr3' | 'gta'
 --   Target values      :  'ox' | 'qb' | 'none'
 --   Zone values        :  'ox' | 'poly' | 'none'
---   Bank values        :  'renewed' | 'fd' | 'qb' | 'okok' | 'framework'
+--   Bank values        :  'renewed' | 'fd' | 'crm' | 'qb' | 'okok' | 'framework'
 --------------------------------------------------------------------------------
 Config.FrameworkOverride = nil
 

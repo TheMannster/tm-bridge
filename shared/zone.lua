@@ -21,10 +21,10 @@ function TM.Zone.Poly(opts)
     opts = opts or {}
     local sys = TM.Systems.Zone
 
-    if sys == 'ox' and TM.HasResource(TM.Exports.oxLib) then
+    if sys == 'ox' and lib and lib.zones then
         local pts = {}
         for i, p in ipairs(opts.points or {}) do pts[i] = asVec3(p) end
-        return exports[TM.Exports.oxLib]:zones.poly({
+        return lib.zones.poly({
             name = opts.id, points = pts,
             thickness = opts.thickness or 4.0, debug = opts.debug or (Config and Config.DebugMode),
             onEnter = opts.onEnter, onExit = opts.onExit, inside = opts.inside,
@@ -54,8 +54,8 @@ function TM.Zone.Sphere(opts)
     opts = opts or {}
     local sys = TM.Systems.Zone
 
-    if sys == 'ox' and TM.HasResource(TM.Exports.oxLib) then
-        return exports[TM.Exports.oxLib]:zones.sphere({
+    if sys == 'ox' and lib and lib.zones then
+        return lib.zones.sphere({
             coords = asVec3(opts.coords), radius = opts.radius or 1.5,
             debug = opts.debug or (Config and Config.DebugMode),
             onEnter = opts.onEnter, onExit = opts.onExit, inside = opts.inside,
@@ -80,8 +80,8 @@ end
 --------------------------------------------------------------------------------
 function TM.Zone.Box(opts)
     opts = opts or {}
-    if TM.HasResource(TM.Exports.oxLib) then
-        return exports[TM.Exports.oxLib]:zones.box({
+    if lib and lib.zones then
+        return lib.zones.box({
             coords = asVec3(opts.coords),
             size = asVec3(opts.size or vector3(1, 1, 1)),
             rotation = opts.rotation or 0.0,

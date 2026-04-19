@@ -93,7 +93,7 @@ end
 -- Login helpers
 --------------------------------------------------------------------------------
 function TM.Player.IsLoggedIn(src)
-    if TM.Client then return TM.Resource.IsPlayerLoaded() end
+    if TM.Client then return TM.Lifecycle.IsPlayerLoaded() end
     return TM.Player.Get(src) ~= nil
 end
 

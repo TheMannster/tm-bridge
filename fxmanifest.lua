@@ -23,6 +23,11 @@ use_experimental_fxv2_oal 'yes'
 --   misc           phone, factory helpers, scaleform helpers
 --==============================================================================
 shared_scripts {
+    --  ox_lib provides the `lib` global used by callback / zones / menus / etc.
+    --  Soft requirement: if ox_lib isn't installed the manifest line is skipped
+    --  and the ox-backed branches fall back to natives where possible.
+    '@ox_lib/init.lua',
+
     'config.lua',
 
     -- core

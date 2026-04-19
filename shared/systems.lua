@@ -124,6 +124,7 @@ local function pickBank()
     if Cfg.Bank then return Cfg.Bank end
     if TM.HasResource(TM.Exports.bankRenewed) then return 'renewed' end
     if TM.HasResource(TM.Exports.bankFD)      then return 'fd'      end
+    if TM.HasResource(TM.Exports.bankCRM)     then return 'crm'     end
     if TM.HasResource(TM.Exports.bankOkOk)    then return 'okok'    end
     if TM.HasResource(TM.Exports.bankQB)      then return 'qb'      end
     return 'framework'

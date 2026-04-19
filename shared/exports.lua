@@ -57,11 +57,13 @@ TM.Exports = {
 
     ----------------------------------------------------------------------------
     -- Banking
+    --   crm-banking docs: https://corem.gitbook.io/welcome/crm-banking/exports
     ----------------------------------------------------------------------------
     bankQB      = 'qb-banking',
     bankRenewed = 'Renewed-Banking',
     bankFD      = 'fd_banking',
     bankOkOk    = 'okokBanking',
+    bankCRM     = 'crm-banking',
 }
 
 --------------------------------------------------------------------------------

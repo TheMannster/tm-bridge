@@ -47,7 +47,7 @@ running -- and lets you override any of those if you want.
     OX Core, RSG Core (RedM), Standalone. Auto-detected.
 -   **Drop-in ecosystem support** -- `ox_lib`, `ox_inventory`,
     `ox_target`, `qb-target`, `qb-menu`, `qb-input`, `okokNotify`,
-    `PolyZone`, `Renewed-Banking`, `qb-banking`, `okokBanking`,
+    `PolyZone`, `Renewed-Banking`, `qb-banking`, `okokBanking`, `crm-banking`,
     `fd_banking`, `lb-phone`, `qb-phone`, `qs-smartphone`, `gksphone`,
     `roadphone`, `yflip-phone`, `jpr-phonesystem`, `ef-phone`,
     `okokPhone` and more -- detected and wired automatically.
@@ -128,7 +128,7 @@ That's it. Boot the server and you'll see something like:
 | **DrawText**   | `ox_lib`, QBCore, ESX, RDR3 native, GTA native                                                                                                                    |
 | **Target**     | `ox_target`, `qb-target`, 3D-text fallback                                                                                                                        |
 | **Zones**      | `ox_lib` zones, `PolyZone`                                                                                                                                        |
-| **Banking**    | `Renewed-Banking`, `fd_banking`, `qb-banking`, `okokBanking`, ESX `addonaccount`                                                                                  |
+| **Banking**    | `Renewed-Banking`, `fd_banking`, `crm-banking`, `qb-banking`, `okokBanking`, ESX `addonaccount`                                                                    |
 | **Phone**      | `lb-phone`, `gksphone`, `qb-phone`, `qs-smartphone`, `roadphone`, `yflip-phone`, `jpr-phonesystem`, `ef-phone`, `okokPhone`                                       |
 
 ---
@@ -204,7 +204,7 @@ local has = exports['tm-bridge']:HasItem(source, 'water', 1)
 | `shared/framework.lua`  | `TM.Framework.name`, `TM.Framework.object`                           |
 | `shared/systems.lua`    | `TM.Systems.{Notify,Menu,Inventory,Progress,Target,Zone,Bank,...}`   |
 | `shared/data.lua`       | `TM.Data.{Items, Vehicles, Jobs, Gangs}`                             |
-| `shared/lifecycle.lua`  | `TM.Resource.OnStart/OnStop/OnPlayerLoaded/WaitFor`                  |
+| `shared/lifecycle.lua`  | `TM.Lifecycle.OnStart/OnStop/OnPlayerLoaded/WaitFor`                 |
 | `shared/util.lua`       | `TM.Util.{Table, Math, Format, Crypto, Raycast, Debug}`              |
 | `shared/callback.lua`   | `TM.Callback.Register / Trigger / TriggerAsync`                      |
 | `shared/notify.lua`     | `TM.Notify.Show / Send / Help`                                       |
@@ -263,7 +263,7 @@ Config.System = {
     DrawText  = nil,   -- 'ox' | 'qb' | 'esx' | 'rdr3' | 'gta'
     Target    = nil,   -- 'ox' | 'qb' | 'none'
     Zone      = nil,   -- 'ox' | 'poly' | 'none'
-    Bank      = nil,   -- 'renewed' | 'fd' | 'qb' | 'okok' | 'framework'
+    Bank      = nil,   -- 'renewed' | 'fd' | 'crm' | 'qb' | 'okok' | 'framework'
     DontUseTarget = false,
 }
 ```

@@ -2,14 +2,17 @@
 --  tm-bridge :: shared/lifecycle.lua
 --  Lightweight hook helpers for resource and player lifecycle events so script
 --  authors don't have to hand-roll AddEventHandler boilerplate.
+--
+--  NOTE: this lives under TM.Lifecycle (not TM.Resource) because TM.Resource
+--  is the resource-name STRING set by shared/core.lua.
 --==============================================================================
 
-TM.Resource = {}
+TM.Lifecycle = {}
 
 --------------------------------------------------------------------------------
 -- Resource start / stop hooks
 --------------------------------------------------------------------------------
-function TM.Resource.OnStart(target, cb)
+function TM.Lifecycle.OnStart(target, cb)
     if type(target) == 'function' then cb, target = target, TM.Resource end
     AddEventHandler('onResourceStart', function(name)
         if target ~= TM.Resource and name ~= target then return end
@@ -18,7 +21,7 @@ function TM.Resource.OnStart(target, cb)
     end)
 end
 
-function TM.Resource.OnStop(target, cb)
+function TM.Lifecycle.OnStop(target, cb)
     if type(target) == 'function' then cb, target = target, TM.Resource end
     AddEventHandler('onResourceStop', function(name)
         if target ~= TM.Resource and name ~= target then return end
@@ -30,26 +33,26 @@ end
 --------------------------------------------------------------------------------
 -- Player loaded hook (client only).  Fires immediately if already loaded.
 --------------------------------------------------------------------------------
-TM.Resource._loadedCallbacks = {}
-TM.Resource._isLoaded = false
+TM.Lifecycle._loadedCallbacks = {}
+TM.Lifecycle._isLoaded = false
 
 if TM.Client then
-    function TM.Resource.IsPlayerLoaded()
-        return TM.Resource._isLoaded
+    function TM.Lifecycle.IsPlayerLoaded()
+        return TM.Lifecycle._isLoaded
     end
 
-    function TM.Resource.OnPlayerLoaded(cb)
-        if TM.Resource._isLoaded then cb() return end
-        table.insert(TM.Resource._loadedCallbacks, cb)
+    function TM.Lifecycle.OnPlayerLoaded(cb)
+        if TM.Lifecycle._isLoaded then cb() return end
+        table.insert(TM.Lifecycle._loadedCallbacks, cb)
     end
 
     local function fire()
-        TM.Resource._isLoaded = true
-        for _, cb in ipairs(TM.Resource._loadedCallbacks) do
+        TM.Lifecycle._isLoaded = true
+        for _, cb in ipairs(TM.Lifecycle._loadedCallbacks) do
             local ok, err = pcall(cb)
             if not ok then TM.Log.err('OnPlayerLoaded callback failed: ' .. tostring(err)) end
         end
-        TM.Resource._loadedCallbacks = {}
+        TM.Lifecycle._loadedCallbacks = {}
     end
 
     -- Universal events (one of these will land for whichever framework is active)
@@ -63,7 +66,7 @@ if TM.Client then
     -- after a brief delay so OnPlayerLoaded callbacks aren't lost forever.
     CreateThread(function()
         Wait(2500)
-        if TM.Resource._isLoaded then return end
+        if TM.Lifecycle._isLoaded then return end
         if NetworkIsPlayerActive(PlayerId()) and not IsEntityDead(PlayerPedId()) then
             fire()
         end
@@ -73,7 +76,7 @@ end
 --------------------------------------------------------------------------------
 -- Async sleep helper that returns when the predicate is true (or timeout hit).
 --------------------------------------------------------------------------------
-function TM.Resource.WaitFor(predicate, timeoutMs)
+function TM.Lifecycle.WaitFor(predicate, timeoutMs)
     timeoutMs = timeoutMs or 10000
     local deadline = GetGameTimer() + timeoutMs
     while GetGameTimer() < deadline do

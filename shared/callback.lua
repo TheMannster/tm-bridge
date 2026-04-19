@@ -7,7 +7,11 @@
 
 TM.Callback = {}
 
-local hasOx = TM.HasResource(TM.Exports.oxLib)
+--  ox_lib is loaded into our env via '@ox_lib/init.lua' in fxmanifest, so
+--  the `lib` global is available here when ox_lib is started.  We still
+--  guard with both a resource check AND a `lib` truthiness check so a
+--  half-loaded ox_lib can't crash us.
+local hasOx = TM.HasResource(TM.Exports.oxLib) and lib and lib.callback ~= nil
 
 --------------------------------------------------------------------------------
 -- Internal fallback implementation (network events)
@@ -52,7 +56,7 @@ function TM.Callback.Register(name, handler)
         return TM.Log.warn('TM.Callback.Register must be called server-side (' .. tostring(name) .. ')')
     end
     if hasOx then
-        return exports[TM.Exports.oxLib]:registerCallback(name, handler)
+        return lib.callback.register(name, handler)
     end
     nativeHandlers[name] = handler
 
@@ -83,7 +87,7 @@ function TM.Callback.Trigger(name, ...)
     end
 
     if hasOx then
-        return exports[TM.Exports.oxLib]:callback.await(name, false, ...)
+        return lib.callback.await(name, false, ...)
     end
 
     local p = promise.new()
@@ -104,7 +108,7 @@ function TM.Callback.TriggerAsync(name, cb, ...)
         return TM.Log.warn('TM.Callback.TriggerAsync must be called client-side (' .. tostring(name) .. ')')
     end
     if hasOx then
-        return exports[TM.Exports.oxLib]:callback(name, false, cb, ...)
+        return lib.callback(name, false, cb, ...)
     end
     local token = nextToken()
     nativePending[token] = cb

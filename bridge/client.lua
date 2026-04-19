@@ -9,7 +9,7 @@ exports('GetTM',          function() return TM end)
 exports('GetFramework',   function() return TM.Framework.name end)
 exports('GetSystems',     function() return TM.Systems end)
 
-exports('IsPlayerLoaded', function() return TM.Resource.IsPlayerLoaded() end)
+exports('IsPlayerLoaded', function() return TM.Lifecycle.IsPlayerLoaded() end)
 exports('GetPlayerData',  function() return TM.Player.Data() end)
 
 exports('Notify',         function(title, message, kind, dur) TM.Notify.Show(title, message, kind, dur) end)

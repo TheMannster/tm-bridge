@@ -39,7 +39,7 @@ exist anymore. Consumers must update to the new TM API.
 | `shared/framework.lua`     | `TM.Framework`                              |
 | `shared/systems.lua`       | `TM.Systems`                                |
 | `shared/data.lua`          | `TM.Data` (Items / Vehicles / Jobs / Gangs) |
-| `shared/lifecycle.lua`     | `TM.Resource` (OnStart / OnPlayerLoaded)    |
+| `shared/lifecycle.lua`     | `TM.Lifecycle` (OnStart / OnPlayerLoaded)   |
 | `shared/util.lua`          | `TM.Util` (Table / Math / Format / Crypto)  |
 | `shared/callback.lua`      | `TM.Callback.Register/Trigger`              |
 | `shared/notify.lua`        | `TM.Notify.Show/Send/Help`                  |
