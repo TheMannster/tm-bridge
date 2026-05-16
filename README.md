@@ -12,7 +12,7 @@ OX Core, RSG (RedM), or no framework at all.
 [![FiveM](https://img.shields.io/badge/FiveM-supported-success?style=flat-square)](https://fivem.net/)
 [![RedM](https://img.shields.io/badge/RedM-supported-success?style=flat-square)](https://redm.net/)
 [![Lua](https://img.shields.io/badge/Lua-5.4-blue?style=flat-square&logo=lua)](https://www.lua.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
+[![License](https://img.shields.io/badge/License-Proprietary-darkred?style=flat-square)](LICENSE)
 [![Version](https://img.shields.io/badge/version-3.0.0-informational?style=flat-square)](CHANGELOG.md)
 
 </div>
@@ -497,8 +497,12 @@ Disable it with `Config.VersionCheck = false` in `config.lua`.
 
 ## Contributing
 
-Issues and PRs welcome. The codebase is intentionally flat -- one
-module per file under `shared/`, no nested folders, deterministic load
+Open an **issue** before large changes. Pull requests are welcome **at the
+maintainer's discretion** and must align with [`LICENSE`](LICENSE) (no
+redistribution of this codebase outside your channel; contribution grants no
+rights beyond what the license allows).
+
+The codebase is intentionally flat -- one module per file under `shared/`, no nested folders, deterministic load
 order in `fxmanifest.lua`. If you want to add support for a new backend
 (notify lib, inventory, phone, etc.):
 
@@ -530,8 +534,9 @@ order in `fxmanifest.lua`. If you want to add support for a new backend
 
 ## License
 
-Released under the [MIT License](LICENSE). Use it, fork it, ship it.
-Attribution appreciated but not required.
+This resource is **proprietary** — see [`LICENSE`] for the full terms.
+
+In short: you may run and adapt it **for your own server**; you may **not** redistribute the source as a standalone package, sell it as a primary product, or embed these files in other releases for redistribution. Point end users to **your** official distribution channel.
 
 <div align="center">
 

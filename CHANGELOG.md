@@ -29,6 +29,8 @@ exist anymore. Consumers must update to the new TM API.
   `local TM = exports['tm-bridge']:GetTM()`.
 - Version-checker repo/branch are hard-coded in `server/versioncheck.lua`
   so they live with the code instead of the user's config.
+- **Distribution:** proprietary license — see [`LICENSE`](LICENSE) for
+  permitted use, redistribution limits, and commercial terms.
 
 ### Module map
 
